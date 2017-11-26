@@ -32,7 +32,7 @@ checkSigma <- function(Sigma){
   if(p != ncol(Sigma)){
     stop("`Sigma` must be a symmetric positive matrix - it is not square")
   }
-  if(any(Sigma != t(Sigma))){
+  if(!isTRUE(all.equal.numeric(Sigma, t(Sigma), tol=100*.Machine$double.eps))){
     stop("`Sigma` must be a symmetric positive matrix - it is not symmetric")
   }
   if(is.complex(Sigma)){
@@ -50,28 +50,36 @@ matrixroot <- function(Sigma, matrixname="Sigma"){
     if(Sigma >= 0){
       return(as.matrix(sqrt(Sigma)))
     }else{
-      stop(sprintf("`%s` is not positive", matrixname))
+      stop(sprintf("`%s` is not positive", matrixname), call. = FALSE)
     }
   }
   p <- nrow(Sigma)
   if(p != ncol(Sigma)){
     stop(sprintf("`%s` must be a symmetric positive matrix - it is not square",
-                 matrixname))
+                 matrixname), call. = FALSE)
   }
-  if(any(Sigma != t(Sigma))){
+  if(!isTRUE(all.equal.numeric(Sigma, t(Sigma), tol=100*.Machine$double.eps))){
     stop(sprintf("`%s` must be a symmetric positive matrix - it is not symmetric",
-                 matrixname))
+                 matrixname), call. = FALSE)
   }
   if(is.complex(Sigma)){
-    stop(sprintf("`%s` has complex entries", matrixname))
+    stop(sprintf("`%s` has complex entries", matrixname), call. = FALSE)
   }
   Sigma_eig <- eigen(Sigma, symmetric = TRUE)
   if(any(is.complex(Sigma_eig$values)) || any(Sigma_eig$values < 0)){
-    stop(sprintf("`%s` is symmetric but not positive", matrixname))
+    stop(sprintf("`%s` is symmetric but not positive", matrixname), call. = FALSE)
   }
   Sigma_eig$vectors %*% (sqrt(Sigma_eig$values) * t(Sigma_eig$vectors))
 }
 
+isZeroMatrix <- function(M){
+  if(isScalar(M)){
+    M <- as.matrix(M)
+  }
+  isTRUE(all.equal.numeric(M, matrix(0, nrow(M), ncol(M))))
+}
+
+#### Wishart ####
 rwishart_chol <- function(n, nu, Sigma){
   # returns lower triangular Cholesky
   # nonsingular only
@@ -112,7 +120,7 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE){
       if(!is_squareRealMatrix(Sigma_root)){
         stop("`Sigma_root` must be a square real matrix")
       }
-      checkSigma(Sigma_root %*% t(Sigma_root))
+      checkSigma(Sigma_root %*% t(Sigma_root)) # inutile de check symétrique et positive - ça l'est !
     }
   }else{
     if(is.null(Sigma_root)){
@@ -147,7 +155,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
   Sigma_root <- matrixroot(Sigma)
   p <- nrow(Sigma_root)
   # check n ? check nu ?
-  if(is.null(Theta)){
+  if(is.null(Theta) || isZeroMatrix(Theta)){
     if(nu >= p){
       R <- rwishart_root(n, nu, Sigma_root=Sigma_root, check=FALSE)
       out <- array(NA_real_, dim=dim(R))
@@ -169,6 +177,11 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
     if(!(isScalar(Sigma) && isScalar(Theta)) && !identical(dim(Sigma), dim(Theta))){
       stop("`Sigma` and `Theta` must have the same dimension")
     }
+    if(nu < p){
+      stop(
+        sprintf("`nu` must be greater than the dimension (%s) in the noncentral case",
+                p))
+    }
     Theta_root <- matrixroot(Theta, matrixname = "Theta")
     W <- array(NA_real_, dim=c(p,p,n))
     if(nu >= 2*p){
@@ -179,13 +192,20 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
           (Theta_root + t(Z) %*% Sigma_root) +
           tcrossprod(Sigma_root %*% WrootI[,,i])
       }
-    }else{
+    }else if(nu>p){
+      if(!isPositiveInteger(nu)){
+        stop("`nu` must be an integer")
+      }
       for(i in 1:n){
         Z <- matrix(rnorm(p*p), p, p)
         W[,,i] <- (Theta_root + Sigma_root %*% Z) %*%
           (Theta_root + t(Z) %*% Sigma_root) +
           Sigma_root %*%
           tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p)) %*% t(Sigma_root)
+      }
+    }else{
+      for(i in 1:n){
+        W[,,i] <- tcrossprod(Theta_root + Sigma_root %*% matrix(rnorm(p*p), p, p))
       }
     }
     return(W)
@@ -236,6 +256,11 @@ rwishart_I <- function(n, nu, p, Theta=NULL){
     if(!(p==1 && isScalar(Theta)) && !all(c(p,p)==dim(Theta))){
       stop("`Theta` must have dimension p x p")
     }
+    if(nu < p){
+      stop(
+        sprintf("`nu` must be greater than the dimension (%s) in the noncentral case",
+                p))
+    }
     Theta_root <- matrixroot(Theta, matrixname = "Theta")
     W <- array(NA_real_, dim=c(p,p,n))
     if(nu >= 2*p){
@@ -245,11 +270,18 @@ rwishart_I <- function(n, nu, p, Theta=NULL){
         W[,,i] <- (Theta_root + Z) %*% (Theta_root + t(Z)) +
           tcrossprod(WrootI[,,i])
       }
-    }else{
+    }else if(nu>p){
+      if(!isPositiveInteger(nu)){
+        stop("`nu` must be an integer")
+      }
       for(i in 1:n){
         Z <- matrix(rnorm(p*p), p, p)
         W[,,i] <- (Theta_root + Z) %*% (Theta_root + t(Z)) +
           tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p))
+      }
+    }else{
+      for(i in 1:n){
+        W[,,i] <- tcrossprod(Theta_root + Sigma_root %*% matrix(rnorm(p*p), p, p))
       }
     }
     return(W)
@@ -317,7 +349,7 @@ curve(pchisq(x, nu-r+1), add=TRUE, col="red")
 
 # check U-distribution
 p <- 3
-Sigma <- rwishart(p, diag(p)) # arbitray U matrix
+Sigma <- rwishart(1, p, diag(p))[,,1] # arbitray U matrix
 nu1 <- 6 # degrees of freedom
 nu2 <- 4
 nsims <- 50000
@@ -360,6 +392,7 @@ rinvwishart <- function(n, nu, Sigma){ # only for Sigma>0 and nu>=p
   #   apply(structure(apply(W, 3, chol), dim=dim(W)), 3, chol2inv),
   #   dim=dim(W))
 }
+
 nu <- 5
 p <- 3
 S <- rwishart(1, p, diag(p))[,,1]
@@ -419,6 +452,7 @@ invsqrtm <- function(M){ # for symmetric M
 }
 rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
   # check n, p, a, b
+  # remplacer is.null par is.null or isZeroMatrix
   if(is.null(Theta1) && is.null(Theta2)){
     if(2*a+2*b < p){
       stop("`a` and `b` must satisfy `a+b >= p/2`")
@@ -510,19 +544,13 @@ curve(ecdf(sims)(x))
 curve(ecdf(chi1sims/(chi1sims+chi2sims))(x), add=TRUE, col="green")
 curve(1-pbeta(1-x, n2, n1, ncp=Theta), add=TRUE, col="blue")
 
-sims <- numeric(nsims)
-for(i in 1:nsims){
-  sims[i] <- 1-c(rmatrixbetanc(p, n2, n1, Theta))
-}
-curve(ecdf(sims)(x))
-curve(pbeta(x, n1, n2, ncp=Theta), add=TRUE, col="red") # the same
 
 #### matrix normal ####
 rmatrixnormal <- function(n, M, U, V){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
-  tcholU <- t(chol(U))
+  tcholU <- t(chol(U)) # prendre matrixroot pour autoriser semidéfinie positive
   cholV <- chol(V)
   m <- nrow(tcholU)
   p <- nrow(cholV)
@@ -550,7 +578,7 @@ rmatrixt <- function(n, nu, M, U, V){
   if(!isRealScalar(nu)){
     stop("`nu` must be a positive number")
   }
-  cholV <- chol(V)
+  cholV <- chol(V) # matrixroot ?
   if(any(V != t(V))){
     stop("`V` is not symmetric")
   }
