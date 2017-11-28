@@ -22,9 +22,11 @@ simulations are stacked along the third dimension (see example).
 Samples the inverse-Wishart distribution.
 }
 \details{
-The inverse-Wishart distribution with scale matrix \eqn{\Omega} is
+The inverse-Wishart distribution with scale matrix
+\ifelse{html}{\out{&Omega;}}{\eqn{\Omega}} is
 defined as the inverse of the Wishart distribution with scale matrix
-\eqn{\Omega^{-1}} and same number of degrees of freedom.
+\ifelse{html}{\out{&Omega;<sup>-1</sup>}}{\eqn{\Omega^{-1}}}
+and same number of degrees of freedom.
 }
 \examples{
 nu <- 6
