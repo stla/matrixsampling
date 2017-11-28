@@ -7,6 +7,8 @@ Author: Stéphane Laurent
 Maintainer: Stéphane Laurent <laurent_step@yahoo.fr>
 Description: Provides samplers for various matrix variate distributions: Wishart, inverse-Wishart, normal, t, inverted-t, Beta type I and Beta type II.
 License: GPL-3
+URL: https://github.com/stla/matrixsampling
+BugReports: https://github.com/stla/matrixsampling/issues
 Encoding: UTF-8
 LazyData: true
 Imports: stats
