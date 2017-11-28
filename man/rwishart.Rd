@@ -37,8 +37,9 @@ definite.
 \examples{
 nu <- 4
 p <- 3
-Sigma <- diag(p)
-Wsims <- rwishart(10000, nu, Sigma)
+Sigma <- toeplitz(p:1)
+Theta <- diag(p)
+Wsims <- rwishart(10000, nu, Sigma, Theta)
 dim(Wsims) # 3 3 10000
-apply(Wsims, 1:2, mean) # approximately nu*Sigma
+apply(Wsims, 1:2, mean) # approximately nu*Sigma+Theta
 }

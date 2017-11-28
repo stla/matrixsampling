@@ -96,7 +96,7 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
 #' must be half an integer}
 #'
 #' @examples
-#' Bsims <- rmatrixbetaII(10000, 3, 1, 1)
+#' Bsims <- rmatrixbetaII(10000, 3, 1, 1.5)
 #' dim(Bsims) # 3 3 10000
 rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
   if(!isPositiveInteger(n)){
@@ -116,7 +116,7 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
       stop("`b` must satisfy `b >= p/2`")
     }
     W1 <- rwishart_I(n, 2*a, p)
-    W2 <- rwishart_I(n, 2*b, p) # ou rwishart_root_I et chol2inv(chol(W2)) ?
+    W2 <- rwishart_I(n, 2*b, p)
   }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p)

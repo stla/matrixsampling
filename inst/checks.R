@@ -157,10 +157,10 @@ V <- rwishart(1, p, diag(p))[,,1] # arbitrary V matrix
 Uinv <- solve(U)
 Vinv <- solve(V) # inverse V
 nu <- 6 # degrees of freedom
-
-## check U-distribution
 nsims <- 20000
 sims <- rmatrixt(nsims, nu, M, U, V)
+
+## check U-distribution
 X <- sweep(sims, 1:2, M, "-")
 detsims <- apply(X, 3,
                  function(x) 1/det(diag(m) + Uinv %*% x %*% Vinv %*% t(x)))
@@ -205,6 +205,64 @@ bsims2 <- rmatrixbetaII(nsims, m, p/2, (nu+m-1)/2)
 mean(apply(bsims, 3, function(x) exp(tr(1i*Z%*%x))))
 mean(apply(bsims2, 3, function(x) exp(tr(1i*Z%*%x))))
 
+## check case m=1 or p=1
+m <- 3; p <- 1
+M <- matrix(0, m, p)
+U <- rwishart(1, m, diag(m))[,,1]
+V <- 1
+nu <- 6
+nsims <- 20000
+sims <- t(rmatrixt(nsims, nu, M, U, V)[,1,])
+library(mvtnorm)
+pmvt(upper = c(1,1,1), delta=c(0,0,0), df=nu, sigma=U)
+mean(apply(sqrt(nu)*sims<1, 1, all))
+pmvt(upper = c(1,1,1), delta=c(0,0,0), df=nu, sigma=U/nu)
+mean(apply(sims<1, 1, all))
+# y'a une faute quelque part dans G&N... sa densité donne nu/(nu-2) pour la covariance,
+# mais la représentation THM 4.2.1 donne 1/(nu-2)
+# mais non c'est pas la même densité ; faut prendre Omega=nu
+sims <- t(rmatrixt(nsims, nu, M, U, nu)[,1,])
+pmvt(upper = c(1,1,1), delta=c(0,0,0), df=nu, sigma=U)
+mean(apply(sims<1, 1, all))
+
+# 1.4.6 G & N
+z <- 2; a <- 3
+integrate(function(lambda) exp(-lambda*z)*lambda^(a-1), lower=0, upper=Inf)
+gamma(a)/z^a # -ok
+# p=2
+mbeta <- function(p, a, b){ # multivariate Beta
+  exp((log(pi) * (p * (p - 1)/4) + sum(lgamma(a + (1-(1:p))/2))) +
+    (sum(lgamma(b + (1-(1:p))/2))) -
+    ( sum(lgamma(a+b + (1-(1:p))/2))))
+}
+
+Z <- toeplitz(2:1)
+b <- 3/2 # ça marche que pour b=3/2 - non c'est la convergence qui est lente
+bsims <- rmatrixbetaII(nsims, 2, a, b)
+mbeta(2,a,b) * mean(apply(bsims, 3,
+           function(Lambda) exp(-tr(Lambda%*%Z)) *
+             det(diag(2)+Lambda)^(a+b) ))
+mgamma(2,a)/det(Z)^a
+# p = 3
+Z <- diag(3) #toeplitz(3:1)
+b <- 1.7525
+bsims <- rmatrixbetaII(nsims, 3, a, b)
+mbeta(3,a,b) * mean(apply(bsims, 3,
+                          function(Lambda) exp(-tr(Lambda%*%Z)) *
+                            det(diag(3)+Lambda)^(a+b) ))
+mgamma(3,a)/det(Z)^a
+# p = 4
+Z <- toeplitz(4:1)
+b <- 2
+bsims <- rmatrixbetaII(nsims, 4, a, b)
+mbeta(4,a,b) * mean(apply(bsims, 3,
+                          function(Lambda) exp(-tr(Lambda%*%Z)) *
+                            det(diag(4)+Lambda)^(a+b) ))
+mgamma(4,a)/det(Z)^a
+
+bsims <- brr::rbeta2(nsims, a, b, 1)
+beta(a,b)*mean(exp(-bsims)*(1+bsims)^(a+b))
+gamma(a)
 
 #### checks inverted matrix Student ####
 ## thm 5.2.3 G & N

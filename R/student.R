@@ -26,7 +26,7 @@
 #' dim(Tsims) # 2 3 10000
 #' apply(Tsims, 1:2, mean) # approximates M
 #' vecTsims <- t(apply(Tsims, 3, function(X) c(t(X))))
-#' round(cov(vecTsims)) # approximates 1/(nu-2) * kronecker(U,V)
+#' round(cov(vecTsims), 1) # approximates 1/(nu-2) * kronecker(U,V)
 rmatrixt <- function(n, nu, M, U, V){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
@@ -51,9 +51,9 @@ rmatrixt <- function(n, nu, M, U, V){
   out
 }
 
-#' Matrix inverted t sampler
+#' Matrix inverted-t sampler
 #'
-#' Samples the matrix inverted t-distribution.
+#' Samples the matrix inverted-t distribution.
 #'
 #' @param n sample size, a positive integer
 #' @param nu degrees of freedom, any real number at least equal to one, or an
@@ -76,11 +76,11 @@ rmatrixt <- function(n, nu, M, U, V){
 #' M <- matrix(1, m, p)
 #' U <- toeplitz(m:1)
 #' V <- toeplitz(p:1)
-#' ITsims <- rmatrixt(10000, nu, M, U, V)
+#' ITsims <- rmatrixit(10000, nu, M, U, V)
 #' dim(ITsims) # 2 3 10000
 #' apply(ITsims, 1:2, mean) # approximates M
 #' vecITsims <- t(apply(ITsims, 3, function(X) c(t(X))))
-#' round(cov(vecITsims),1) # approximates 1/(nu+m+p-1) * kronecker(U,V)
+#' round(cov(vecITsims),2) # approximates 1/(nu+m+p-1) * kronecker(U,V)
 rmatrixit <- function(n, nu, M, U, V){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")

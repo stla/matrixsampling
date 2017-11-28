@@ -2,7 +2,7 @@
 % Please edit documentation in R/wishart.R
 \name{rinvwishart}
 \alias{rinvwishart}
-\title{Inverse Wishart sampler}
+\title{Inverse-Wishart sampler}
 \usage{
 rinvwishart(n, nu, Omega)
 }
@@ -19,17 +19,17 @@ A numeric three-dimensional array;
 simulations are stacked along the third dimension (see example).
 }
 \description{
-Samples the inverse Wishart distribution.
+Samples the inverse-Wishart distribution.
 }
 \details{
-The inverse Wishart distribution with scale matrix \eqn{\Omega} is
+The inverse-Wishart distribution with scale matrix \eqn{\Omega} is
 defined as the inverse of the Wishart distribution with scale matrix
-\eqn{\Omega^{-1}} and same number of degrees of freedom
+\eqn{\Omega^{-1}} and same number of degrees of freedom.
 }
 \examples{
 nu <- 6
 p <- 3
-Omega <- diag(p)
+Omega <- toeplitz(p:1)
 IWsims <- rinvwishart(10000, nu, Omega)
 dim(IWsims) # 3 3 10000
 apply(IWsims, 1:2, mean) # approximately Omega/(nu-p-1)

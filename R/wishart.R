@@ -1,9 +1,33 @@
+#' Sampling Cholesky factor of a Wishart matrix
+#'
+#' Samples the lower triangular Cholesky factor of a Wishart random matrix.
+#'
+#' @param n sample size, a positive integer
+#' @param nu degrees of freedom, a positive number at least equal to the dimension
+#' (the order of \code{Sigma})
+#' @param Sigma scale matrix, a positive definite real matrix
+#'
+#' @return A numeric three-dimensional array;
+#' simulations are stacked along the third dimension (see example).
+#' @export
+#' @importFrom stats rnorm rchisq
+#'
+#' @examples
+#' nu <- 4
+#' p <- 3
+#' Sigma <- diag(p)
+#' Wsims <- rwishart_chol(10000, nu, Sigma)
+#' dim(Wsims) # 3 3 10000
+#' Wsims[,,1]
 rwishart_chol <- function(n, nu, Sigma){
-  # returns lower triangular Cholesky
-  # nonsingular only
-  # finally not used...
+  if(!isPositiveInteger(n)){
+    stop("`n` must be a positive integer")
+  }
+  if(!isRealScalar(nu)){
+    stop("`nu` must be a number")
+  }
   Sigma_chol <- chol(Sigma)
-  if(any(Sigma != t(Sigma))){
+  if(!isSymmetricMatrix(Sigma)){
     stop("`Sigma` is not symmetric")
   }
   p <- nrow(Sigma_chol)
@@ -21,9 +45,10 @@ rwishart_chol <- function(n, nu, Sigma){
 }
 
 rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE){
-  # ! returns C such that CC'=Wishart
+  # samples R such that RR'~ W(nu, Sigma)
   # nu >= p only
   # Sigma_root Sigma_root' = Sigma
+  # Sigma is ignored is Sigma_root is provided
   if(is.null(Sigma_root)){
     p <- ifelse(isScalar(Sigma), 1L, nrow(Sigma))
   }else{
@@ -39,7 +64,6 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE){
       if(!is_squareRealMatrix(Sigma_root)){
         stop("`Sigma_root` must be a square real matrix")
       }
-      #checkSigma(Sigma_root %*% t(Sigma_root)) # inutile de check symétrique et positive - ça l'est !
     }
   }else{
     if(is.null(Sigma_root)){
@@ -58,7 +82,7 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE){
 }
 
 rwishart_root_I <- function(n, nu, p){
-  # ! returns C such that CC'=Wishart(nu, I_p)
+  # samples R such that RR' ~ W(nu, I_p)
   # nu >= p only
   out <- array(NA_real_, dim=c(p, p, n))
   for(i in 1:n){
@@ -98,10 +122,11 @@ rwishart_root_I <- function(n, nu, p){
 #' @examples
 #' nu <- 4
 #' p <- 3
-#' Sigma <- diag(p)
-#' Wsims <- rwishart(10000, nu, Sigma)
+#' Sigma <- toeplitz(p:1)
+#' Theta <- diag(p)
+#' Wsims <- rwishart(10000, nu, Sigma, Theta)
 #' dim(Wsims) # 3 3 10000
-#' apply(Wsims, 1:2, mean) # approximately nu*Sigma
+#' apply(Wsims, 1:2, mean) # approximately nu*Sigma+Theta
 rwishart <- function(n, nu, Sigma, Theta=NULL){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
@@ -168,6 +193,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
 }
 
 rwishart_I <- function(n, nu, p, Theta=NULL){
+  # samples W(nu, Ip, Theta)
   if(is.null(Theta)){
     if(nu >= p){
       R <- rwishart_root_I(n, nu, p)
@@ -224,9 +250,9 @@ rwishart_I <- function(n, nu, p, Theta=NULL){
   }
 }
 
-#' Inverse Wishart sampler
+#' Inverse-Wishart sampler
 #'
-#' Samples the inverse Wishart distribution.
+#' Samples the inverse-Wishart distribution.
 #'
 #' @param n sample size, a positive integer
 #' @param nu degrees of freedom, a number at least equal to the dimension
@@ -238,14 +264,14 @@ rwishart_I <- function(n, nu, p, Theta=NULL){
 #' @export
 #' @importFrom stats rnorm rchisq
 #'
-#' @details The inverse Wishart distribution with scale matrix \eqn{\Omega} is
+#' @details The inverse-Wishart distribution with scale matrix \eqn{\Omega} is
 #' defined as the inverse of the Wishart distribution with scale matrix
-#' \eqn{\Omega^{-1}} and same number of degrees of freedom
+#' \eqn{\Omega^{-1}} and same number of degrees of freedom.
 #'
 #' @examples
 #' nu <- 6
 #' p <- 3
-#' Omega <- diag(p)
+#' Omega <- toeplitz(p:1)
 #' IWsims <- rinvwishart(10000, nu, Omega)
 #' dim(IWsims) # 3 3 10000
 #' apply(IWsims, 1:2, mean) # approximately Omega/(nu-p-1)

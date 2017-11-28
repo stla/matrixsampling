@@ -44,7 +44,7 @@ matrixroot <- function(Sigma, matrixname="Sigma"){
   Sigma_eig$vectors %*% (sqrt(Sigma_eig$values) * t(Sigma_eig$vectors))
 }
 
-invsqrtm <- function(Sigma){ # inverse square root for positive symmetric M
+invsqrtm <- function(Sigma){ # inverse square root for positive symmetric Sigma
   Sigma_eig <- eigen(Sigma, symmetric = TRUE)
   Sigma_eig$vectors %*% (1/sqrt(Sigma_eig$values) * t(Sigma_eig$vectors))
 }
@@ -53,7 +53,7 @@ isZeroMatrix <- function(M){
   if(isScalar(M)){
     M <- as.matrix(M)
   }
-  isTRUE(is.matrix(M) && all.equal.numeric(M, matrix(0, nrow(M), ncol(M))))
+  is.matrix(M) && isTRUE(all.equal.numeric(M, matrix(0, nrow(M), ncol(M))))
 }
 
 isNullOrZeroMatrix <- function(M){

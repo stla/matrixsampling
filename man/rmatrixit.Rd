@@ -2,7 +2,7 @@
 % Please edit documentation in R/student.R
 \name{rmatrixit}
 \alias{rmatrixit}
-\title{Matrix inverted t sampler}
+\title{Matrix inverted-t sampler}
 \usage{
 rmatrixit(n, nu, M, U, V)
 }
@@ -25,7 +25,7 @@ A numeric three-dimensional array;
 simulations are stacked along the third dimension (see example).
 }
 \description{
-Samples the matrix inverted t-distribution.
+Samples the matrix inverted-t distribution.
 }
 \examples{
 nu <- 0
@@ -34,9 +34,9 @@ p <- 3
 M <- matrix(1, m, p)
 U <- toeplitz(m:1)
 V <- toeplitz(p:1)
-ITsims <- rmatrixt(10000, nu, M, U, V)
+ITsims <- rmatrixit(10000, nu, M, U, V)
 dim(ITsims) # 2 3 10000
 apply(ITsims, 1:2, mean) # approximates M
 vecITsims <- t(apply(ITsims, 3, function(X) c(t(X))))
-round(cov(vecITsims),1) # approximates 1/(nu+m+p-1) * kronecker(U,V)
+round(cov(vecITsims),2) # approximates 1/(nu+m+p-1) * kronecker(U,V)
 }

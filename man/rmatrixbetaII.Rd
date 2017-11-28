@@ -39,6 +39,6 @@ following constraints:
 must be half an integer}
 }
 \examples{
-Bsims <- rmatrixbetaII(10000, 3, 1, 1)
+Bsims <- rmatrixbetaII(10000, 3, 1, 1.5)
 dim(Bsims) # 3 3 10000
 }

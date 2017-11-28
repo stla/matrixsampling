@@ -37,5 +37,5 @@ Tsims <- rmatrixt(10000, nu, M, U, V)
 dim(Tsims) # 2 3 10000
 apply(Tsims, 1:2, mean) # approximates M
 vecTsims <- t(apply(Tsims, 3, function(X) c(t(X))))
-round(cov(vecTsims)) # approximates 1/(nu-2) * kronecker(U,V)
+round(cov(vecTsims), 1) # approximates 1/(nu-2) * kronecker(U,V)
 }
