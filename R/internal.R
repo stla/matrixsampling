@@ -35,9 +35,6 @@ matrixroot <- function(Sigma, matrixname="Sigma"){
     stop(sprintf("`%s` has complex entries", matrixname), call. = FALSE)
   }
   Sigma_eig <- eigen(Sigma, symmetric = TRUE)
-  # if(any(is.complex(Sigma_eig$values)) || any(Sigma_eig$values < 0)){
-  #   stop(sprintf("`%s` is symmetric but not positive", matrixname), call. = FALSE)
-  # }
   if(any(Sigma_eig$values < 0)){
     stop(sprintf("`%s` is symmetric but not positive", matrixname), call. = FALSE)
   }
