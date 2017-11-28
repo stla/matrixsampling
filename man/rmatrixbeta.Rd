@@ -41,6 +41,15 @@ if \code{b <= (p-1)/2}, it must be half an integer
 \item if \code{Theta2} is the null matrix, \code{b > (p-1)/2};
 if \code{a <= (p-1)/2}, it must be half an integer}
 }
+\note{
+The matrix variate Beta distribution is usually defined only for
+\eqn{a > (p-1)/2} and \eqn{b > (p-1)/2}. In this case, a random matrix \eqn{U}
+generated from this distribution satisfies \eqn{0 < U < I}.
+For an half integer \eqn{a \le (p-1)/2}, it satisfies \eqn{0 \le U < I}
+and \eqn{rank(U)=2a}.
+For an half integer \eqn{b \le (p-1)/2}, it satisfies \eqn{0 < U \le I}
+and \eqn{rank(I-U)=2b}.
+}
 \examples{
 Bsims <- rmatrixbeta(10000, 3, 1, 1)
 dim(Bsims) # 3 3 10000

@@ -28,6 +28,14 @@
 #' \item if \code{Theta2} is the null matrix, \code{b > (p-1)/2};
 #' if \code{a <= (p-1)/2}, it must be half an integer}
 #'
+#' @note The matrix variate Beta distribution is usually defined only for
+#' \eqn{a > (p-1)/2} and \eqn{b > (p-1)/2}. In this case, a random matrix \eqn{U}
+#' generated from this distribution satisfies \eqn{0 < U < I}.
+#' For an half integer \eqn{a \le (p-1)/2}, it satisfies \eqn{0 \le U < I}
+#' and \eqn{rank(U)=2a}.
+#' For an half integer \eqn{b \le (p-1)/2}, it satisfies \eqn{0 < U \le I}
+#' and \eqn{rank(I-U)=2b}.
+#'
 #' @examples
 #' Bsims <- rmatrixbeta(10000, 3, 1, 1)
 #' dim(Bsims) # 3 3 10000
@@ -94,6 +102,12 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
 #' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2}
 #' \item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then \code{a}
 #' must be half an integer}
+#'
+#' @note The matrix variate Beta distribution of type II is usually defined only for
+#' \eqn{a > (p-1)/2} and \eqn{b > (p-1)/2}. In this case, a random matrix \eqn{V}
+#' generated from this distribution satisfies \eqn{V > 0}.
+#' For an half integer \eqn{a \le (p-1)/2}, it satisfies \eqn{V \ge 0} and
+#' \eqn{rank(V)=2a}.
 #'
 #' @examples
 #' Bsims <- rmatrixbetaII(10000, 3, 1, 1.5)

@@ -38,6 +38,13 @@ following constraints:
 \item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then \code{a}
 must be half an integer}
 }
+\note{
+The matrix variate Beta distribution of type II is usually defined only for
+\eqn{a > (p-1)/2} and \eqn{b > (p-1)/2}. In this case, a random matrix \eqn{V}
+generated from this distribution satisfies \eqn{V > 0}.
+For an half integer \eqn{a \le (p-1)/2}, it satisfies \eqn{V \ge 0} and
+\eqn{rank(V)=2a}.
+}
 \examples{
 Bsims <- rmatrixbetaII(10000, 3, 1, 1.5)
 dim(Bsims) # 3 3 10000
