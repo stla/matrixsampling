@@ -15,7 +15,7 @@ must be an integer;
 in the noncentral case (i.e. when \code{Theta} is not the null matrix), \code{nu}
 must satisfy these constraints:
 \itemize{
-\item \code{nu > p-1}
+\item \code{nu >= p}
 \item if \code{nu <= 2*p-1}, it must be an integer}}
 
 \item{Sigma}{scale matrix, a positive semidefinite real matrix}
