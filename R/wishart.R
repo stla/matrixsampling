@@ -61,7 +61,7 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE){
     if(is.null(Sigma_root)){
       Sigma_root <- matrixroot(Sigma)
     }else{
-      if(!is_squareRealMatrix(Sigma_root)){
+      if(!isSquareRealMatrix(Sigma_root)){
         stop("`Sigma_root` must be a square real matrix")
       }
     }

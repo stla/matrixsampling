@@ -1,9 +1,9 @@
 isScalar <- function(x){
-  (is.complex(x) || is.numeric(x)) && (length(x) == 1)
+  (is.complex(x) || is.numeric(x)) && (length(x) == 1L)
 }
 
 isRealScalar <- function(x){
-  is.numeric(x) && (length(x) == 1)
+  is.numeric(x) && (length(x) == 1L)
 }
 
 isPositiveInteger <- function(x){
@@ -12,6 +12,10 @@ isPositiveInteger <- function(x){
 
 isSymmetricMatrix <- function(Sigma){
   isTRUE(all.equal.numeric(Sigma, t(Sigma), tolerance=100*.Machine$double.eps))
+}
+
+isSquareRealMatrix <- function(M){
+  (isScalar(M) || (is.matrix(M) && (nrow(M) == ncol(M)))) && is.numeric(M)
 }
 
 matrixroot <- function(Sigma, matrixname="Sigma"){
