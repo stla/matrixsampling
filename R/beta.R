@@ -21,12 +21,12 @@
 #' following constraints:
 #' \itemize{
 #' \item if both \code{Theta1} and \code{Theta2} are the null matrix,
-#' \code{a+b >= p/2}; if \code{a < p/2}, it must be half an integer;
-#' if \code{b < p/2}, it must be half an integer
-#' \item if \code{Theta1} is not the null matrix, \code{a >= p/2};
-#' if \code{b < p/2}, it must be half an integer
-#' \item if \code{Theta2} is the null matrix, \code{b >= p/2};
-#' if \code{a < p/2}, it must be half an integer}
+#' \code{a+b > (p-1)/2}; if \code{a <= (p-1)/2}, it must be half an integer;
+#' if \code{b <= (p-1)/2}, it must be half an integer
+#' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2};
+#' if \code{b <= (p-1)/2}, it must be half an integer
+#' \item if \code{Theta2} is the null matrix, \code{b > (p-1)/2};
+#' if \code{a <= (p-1)/2}, it must be half an integer}
 #'
 #' @examples
 #' Bsims <- rmatrixbeta(10000, 3, 1, 1)
@@ -45,8 +45,8 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
     stop("`b` must be a positive number")
   }
   if(isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
-    if(2*a+2*b < p){
-      stop("`a` and `b` must satisfy `a+b >= p/2`")
+    if(2*a+2*b <= p-1){
+      stop("`a` and `b` must satisfy `a+b > (p-1)/2`")
     }
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p)
@@ -90,9 +90,9 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
 #' @details Parameters \code{a} and \code{b} are positive numbers that satisfy the
 #' following constraints:
 #' \itemize{
-#' \item in any case, \code{b >= p/2}
-#' \item if \code{Theta1} is not the null matrix, \code{a >= p/2}
-#' \item if \code{Theta1} is the null matrix and \code{a < p/2}, then \code{a}
+#' \item in any case, \code{b > (p-1)/2}
+#' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2}
+#' \item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then \code{a}
 #' must be half an integer}
 #'
 #' @examples
@@ -112,8 +112,8 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
     stop("`b` must be a positive number")
   }
   if(isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
-    if(2*b < p){
-      stop("`b` must satisfy `b >= p/2`")
+    if(2*b <= p-1){
+      stop("`b` must satisfy `b > (p-1)/2`")
     }
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p)

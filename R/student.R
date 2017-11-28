@@ -3,7 +3,7 @@
 #' Samples the matrix t-distribution.
 #'
 #' @param n sample size, a positive integer
-#' @param nu degrees of freedom, a number at least equal to one
+#' @param nu degrees of freedom, a positive number
 #' @param M mean matrix, without constraints
 #' @param U columns covariance matrix, a positive semidefinite matrix of order equal
 #' to \code{nrow(M)}
@@ -34,8 +34,8 @@ rmatrixt <- function(n, nu, M, U, V){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
-  if(!isRealScalar(nu) || nu < 1){
-    stop("`nu` must be a number greater than one")
+  if(!isRealScalar(nu) || nu <= 0){
+    stop("`nu` must be a positive number")
   }
   Vroot <- matrixroot(V)
   m <- ifelse(isScalar(U), 1L, nrow(U))
@@ -59,7 +59,7 @@ rmatrixt <- function(n, nu, M, U, V){
 #' Samples the matrix inverted-t distribution.
 #'
 #' @param n sample size, a positive integer
-#' @param nu degrees of freedom, any real number at least equal to one, or an
+#' @param nu degrees of freedom, any positive number or an
 #' integer strictly greater than \code{1-nrow(M)}
 #' @param M mean matrix, without constraints
 #' @param U columns covariance matrix, a positive semidefinite matrix of order equal

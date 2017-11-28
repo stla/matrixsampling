@@ -9,7 +9,7 @@ rmatrixit(n, nu, M, U, V)
 \arguments{
 \item{n}{sample size, a positive integer}
 
-\item{nu}{degrees of freedom, any real number at least equal to one, or an
+\item{nu}{degrees of freedom, any positive number or an
 integer strictly greater than \code{1-nrow(M)}}
 
 \item{M}{mean matrix, without constraints}

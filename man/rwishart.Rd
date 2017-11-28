@@ -10,16 +10,18 @@ rwishart(n, nu, Sigma, Theta = NULL)
 \item{n}{sample size, a positive integer}
 
 \item{nu}{degrees of freedom, a positive number;
-if less than the dimension (the order of \code{Sigma}), must be an integer;
-in the noncentral case (i.e. when \code{Theta} is not the null matrix),
+if \code{nu <= p-1} where \code{p} is the dimension (the order of \code{Sigma}),
+must be an integer;
+in the noncentral case (i.e. when \code{Theta} is not the null matrix), \code{nu}
+must satisfy these constraints:
 \itemize{
-\item \code{nu} must be at least equal to the dimension \code{p}
-\item if \code{nu<2*p}, it must be an integer}}
+\item \code{nu > p-1}
+\item if \code{nu <= 2*p-1}, it must be an integer}}
 
 \item{Sigma}{scale matrix, a positive semidefinite real matrix}
 
 \item{Theta}{noncentrality parameter, a positive semidefinite real matrix of
-same dimension as \code{Sigma}; setting it to \code{NULL} (default) is
+same order as \code{Sigma}; setting it to \code{NULL} (default) is
 equivalent to setting it to the zero matrix}
 }
 \value{
@@ -30,9 +32,8 @@ simulations are stacked along the third dimension (see example).
 Samples a Wishart distribution.
 }
 \details{
-A sampled Wishart matrix is always positive semidefinite. If \code{nu}
-is at least equal to the dimension (the order of \code{Sigma}), it is positive
-definite.
+A sampled Wishart matrix is always positive semidefinite.
+If \code{nu > p-1}, it is positive definite.
 }
 \examples{
 nu <- 4

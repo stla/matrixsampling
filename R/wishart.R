@@ -31,8 +31,8 @@ rwishart_chol <- function(n, nu, Sigma){
     stop("`Sigma` is not symmetric")
   }
   p <- nrow(Sigma_chol)
-  if(nu < p){
-    stop(sprintf("`nu` (%s) must be at least equal to the dimension (%s)", nu, p))
+  if(nu <= p-1){
+    stop(sprintf("`nu+1` (%s) must be greater than the dimension (%s)", nu+1, p))
   }
   out <- array(NA_real_, dim=c(p, p, n))
   for(i in 1:n){
@@ -46,7 +46,7 @@ rwishart_chol <- function(n, nu, Sigma){
 
 rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE){
   # samples R such that RR'~ W(nu, Sigma)
-  # nu >= p only
+  # nu > p-1 only
   # Sigma_root Sigma_root' = Sigma
   # Sigma is ignored is Sigma_root is provided
   if(is.null(Sigma_root)){
@@ -55,8 +55,8 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE){
     p <- ifelse(isScalar(Sigma_root), 1L, nrow(Sigma_root))
   }
   if(check){
-    if(nu < p){
-      stop(sprintf("`nu` (%s) must be at least equal to the dimension (%s)", nu, p))
+    if(nu <= p-1){
+      stop(sprintf("`nu+1` (%s) must be greater the dimension (%s)", nu+1, p))
     }
     if(is.null(Sigma_root)){
       Sigma_root <- matrixroot(Sigma)
@@ -83,7 +83,7 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE){
 
 rwishart_root_I <- function(n, nu, p){
   # samples R such that RR' ~ W(nu, I_p)
-  # nu >= p only
+  # nu > p-1 only
   out <- array(NA_real_, dim=c(p, p, n))
   for(i in 1:n){
     Z <- matrix(0, p, p)
@@ -100,19 +100,20 @@ rwishart_root_I <- function(n, nu, p){
 #'
 #' @param n sample size, a positive integer
 #' @param nu degrees of freedom, a positive number;
-#' if less than the dimension (the order of \code{Sigma}), must be an integer;
-#' in the noncentral case (i.e. when \code{Theta} is not the null matrix),
+#' if \code{nu <= p-1} where \code{p} is the dimension (the order of \code{Sigma}),
+#' must be an integer;
+#' in the noncentral case (i.e. when \code{Theta} is not the null matrix), \code{nu}
+#' must satisfy these constraints:
 #' \itemize{
-#' \item \code{nu} must be at least equal to the dimension \code{p}
-#' \item if \code{nu<2*p}, it must be an integer}
+#' \item \code{nu > p-1}
+#' \item if \code{nu <= 2*p-1}, it must be an integer}
 #' @param Sigma scale matrix, a positive semidefinite real matrix
 #' @param Theta noncentrality parameter, a positive semidefinite real matrix of
-#' same dimension as \code{Sigma}; setting it to \code{NULL} (default) is
+#' same order as \code{Sigma}; setting it to \code{NULL} (default) is
 #' equivalent to setting it to the zero matrix
 #'
-#' @details A sampled Wishart matrix is always positive semidefinite. If \code{nu}
-#' is at least equal to the dimension (the order of \code{Sigma}), it is positive
-#' definite.
+#' @details A sampled Wishart matrix is always positive semidefinite.
+#' If \code{nu > p-1}, it is positive definite.
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
@@ -137,7 +138,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
   Sigma_root <- matrixroot(Sigma)
   p <- nrow(Sigma_root)
   if(isNullOrZeroMatrix(Theta)){
-    if(nu >= p){
+    if(nu > p-1){
       R <- rwishart_root(n, nu, Sigma_root=Sigma_root, check=FALSE)
       out <- array(NA_real_, dim=dim(R))
       for(i in 1:n){
@@ -145,7 +146,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
       }
     }else{
       if(!isPositiveInteger(nu)){
-        stop(sprintf("`nu` must be an integer when it is lower than the dimension (%s)", p))
+        stop(sprintf("`nu` (%s) must be an integer when it is lower than `p-1` (%s)", nu, p-1))
       }
       out <- array(NA_real_, dim=c(p,p,n))
       for(i in 1:n){
@@ -157,14 +158,14 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
     if(!(isScalar(Sigma) && isScalar(Theta)) && !identical(dim(Sigma), dim(Theta))){
       stop("`Sigma` and `Theta` must have the same dimension")
     }
-    if(nu < p){
+    if(nu <= p-1){
       stop(
         sprintf(
-          "`nu` must be greater than the dimension (%s) in the noncentral case", p))
+          "`nu` (%s) must be greater than `p-1` (%s) in the noncentral case", nu, p-1))
     }
     Theta_root <- matrixroot(Theta, matrixname = "Theta")
     W <- array(NA_real_, dim=c(p,p,n))
-    if(nu >= 2*p){
+    if(nu > 2*p-1){
       WrootI <- rwishart_root_I(n, nu-p, p)
       for(i in 1:n){
         Z <- matrix(rnorm(p*p), p, p)
@@ -195,7 +196,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
 rwishart_I <- function(n, nu, p, Theta=NULL){
   # samples W(nu, Ip, Theta)
   if(is.null(Theta)){
-    if(nu >= p){
+    if(nu > p-1){
       R <- rwishart_root_I(n, nu, p)
       out <- array(NA_real_, dim=c(p,p,n))
       for(i in 1:n){
@@ -218,14 +219,14 @@ rwishart_I <- function(n, nu, p, Theta=NULL){
     if(!(p==1 && isScalar(Theta)) && !all(c(p,p)==dim(Theta))){
       stop("`Theta` must have dimension p x p")
     }
-    if(nu < p){
+    if(nu <= p-1){
       stop(
         sprintf(
-          "`nu` must be greater than the dimension (%s) in the noncentral case", p))
+          "`nu` (%s) must be greater than `p-1` (%s) in the noncentral case", nu, p-1))
     }
     Theta_root <- matrixroot(Theta, matrixname = "Theta")
     W <- array(NA_real_, dim=c(p,p,n))
-    if(nu >= 2*p){
+    if(nu > 2*p-1){
       WrootI <- rwishart_root_I(n, nu-p, p)
       for(i in 1:n){
         Z <- matrix(rnorm(p*p), p, p)
@@ -255,8 +256,8 @@ rwishart_I <- function(n, nu, p, Theta=NULL){
 #' Samples the inverse-Wishart distribution.
 #'
 #' @param n sample size, a positive integer
-#' @param nu degrees of freedom, a number at least equal to the dimension
-#' (the order of \code{Omega})
+#' @param nu degrees of freedom, must satisfy \code{nu > p-1}, where \code{p} is
+#' the dimension (the order of \code{Omega})
 #' @param Omega scale matrix, a positive definite real matrix
 #'
 #' @return A numeric three-dimensional array;
@@ -287,10 +288,10 @@ rinvwishart <- function(n, nu, Omega){
   }
   Omegainv_chol <- chol(chol2inv(chol(Omega)))
   p <- nrow(Omegainv_chol)
-  if(nu < p){
+  if(nu <= p-1){
     stop(
       sprintf(
-        "`nu` must be at least equal to the dimension (%s)", p))
+        "`nu+1` (%s) must be greater than the dimension (%s)", nu+1, p))
   }
   out <- array(NA_real_, dim=c(p, p, n))
   for(i in 1:n){

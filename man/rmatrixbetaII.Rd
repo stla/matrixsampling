@@ -33,9 +33,9 @@ Samples a matrix Beta type II distribution.
 Parameters \code{a} and \code{b} are positive numbers that satisfy the
 following constraints:
 \itemize{
-\item in any case, \code{b >= p/2}
-\item if \code{Theta1} is not the null matrix, \code{a >= p/2}
-\item if \code{Theta1} is the null matrix and \code{a < p/2}, then \code{a}
+\item in any case, \code{b > (p-1)/2}
+\item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2}
+\item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then \code{a}
 must be half an integer}
 }
 \examples{

@@ -9,7 +9,7 @@ rmatrixt(n, nu, M, U, V)
 \arguments{
 \item{n}{sample size, a positive integer}
 
-\item{nu}{degrees of freedom, a number at least equal to one}
+\item{nu}{degrees of freedom, a positive number}
 
 \item{M}{mean matrix, without constraints}
 

@@ -9,8 +9,8 @@ rinvwishart(n, nu, Omega)
 \arguments{
 \item{n}{sample size, a positive integer}
 
-\item{nu}{degrees of freedom, a number at least equal to the dimension
-(the order of \code{Omega})}
+\item{nu}{degrees of freedom, must satisfy \code{nu > p-1}, where \code{p} is
+the dimension (the order of \code{Omega})}
 
 \item{Omega}{scale matrix, a positive definite real matrix}
 }
