@@ -256,7 +256,7 @@ rwishart_I <- function(n, nu, p, Theta=NULL){
 #'
 #' @param n sample size, a positive integer
 #' @param nu degrees of freedom, a number at least equal to the dimension
-#' (the order of \code{Sigma})
+#' (the order of \code{Omega})
 #' @param Omega scale matrix, a positive definite real matrix
 #'
 #' @return A numeric three-dimensional array;

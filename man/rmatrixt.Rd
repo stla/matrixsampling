@@ -26,6 +26,10 @@ simulations are stacked along the third dimension (see example).
 \description{
 Samples the matrix t-distribution.
 }
+\note{
+When \code{p=1} and \code{V=nu} or when \code{m=1} and \code{U=nu}, the
+distribution is the multivariate t-distribution.
+}
 \examples{
 nu <- 4
 m <- 2

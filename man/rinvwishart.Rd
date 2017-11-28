@@ -10,7 +10,7 @@ rinvwishart(n, nu, Omega)
 \item{n}{sample size, a positive integer}
 
 \item{nu}{degrees of freedom, a number at least equal to the dimension
-(the order of \code{Sigma})}
+(the order of \code{Omega})}
 
 \item{Omega}{scale matrix, a positive definite real matrix}
 }
