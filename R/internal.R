@@ -11,7 +11,7 @@ isPositiveInteger <- function(x){
 }
 
 isSymmetricMatrix <- function(Sigma){
-  isTRUE(all.equal.numeric(Sigma, t(Sigma), tol=100*.Machine$double.eps))
+  isTRUE(all.equal.numeric(Sigma, t(Sigma), tolerance=100*.Machine$double.eps))
 }
 
 matrixroot <- function(Sigma, matrixname="Sigma"){

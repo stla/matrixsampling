@@ -12,7 +12,7 @@ rinvwishart(n, nu, Omega)
 \item{nu}{degrees of freedom, a number at least equal to the dimension
 (the order of \code{Sigma})}
 
-\item{Sigma}{scale matrix, a positive definite real matrix}
+\item{Omega}{scale matrix, a positive definite real matrix}
 }
 \value{
 A numeric three-dimensional array;
