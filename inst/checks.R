@@ -103,6 +103,7 @@ mean(apply(sims, 3, function(x) exp(tr(1i*Z%*%x))))
 complexplus::Det(diag(p) - 2*1i*Z%*%Sigma)^(-nu/2) *
   exp(1i*tr(solve(diag(p) - 2*1i*Z%*%Sigma) %*% Z %*% Theta))
 
+
 #### checks Beta matrix ####
 n1 <- 16
 n2 <- 3
@@ -319,3 +320,19 @@ for(i in 1:10000){
   corsims[i] <- cor(rmvnorm(nu+2, sigma = diag(2)))[1,2]
 }
 curve(ecdf(corsims)(x), add=TRUE, col="blue")
+
+
+#### simulates Beta II by conditional approach ####
+p <- 3
+a <- (p-1)/2+0.01; b <- (p-1)/2+0.01
+p2 <- 1; p1 <- p-1
+b-p2/2; p1/2 # pas poss
+a-p1/2; p2/2 # pas poss
+nsims <- 10000
+V11 <- rmatrixbetaII(nsims, p1, a, b-p2/2)
+V221 <- rmatrixbetaII(nsims, p2, a-p1/2, b)
+V21 <- array(NA_real_, dim=c(p2, p1, nsims))
+for(i in 1:nsims){
+  V21[,,i] <-
+    rmatrixt(1, 2*a+2*b-p+1, matrix(0, p2, p1), diag(p2)+V221[,,i], V11[,,i]*(diag(p1)+V11[,,i]))[,,1]
+}

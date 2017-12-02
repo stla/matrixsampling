@@ -23,9 +23,11 @@
 #' \item if both \code{Theta1} and \code{Theta2} are the null matrix,
 #' \code{a+b > (p-1)/2}; if \code{a <= (p-1)/2}, it must be half an integer;
 #' if \code{b <= (p-1)/2}, it must be half an integer
-#' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2};
+#' \item if \code{Theta1} is the null matrix, \code{a > (p-1)/2} and \code{a}
+#' must be half an integer if \code{a<p-1/2};
 #' if \code{b <= (p-1)/2}, it must be half an integer
-#' \item if \code{Theta2} is the null matrix, \code{b > (p-1)/2};
+#' \item if \code{Theta2} is the null matrix, \code{b > (p-1)/2} and \code{b}
+#' must be half an integer if \code{b<p-1/2};
 #' if \code{a <= (p-1)/2}, it must be half an integer}
 #'
 #' @note The matrix variate Beta distribution is usually defined only for
@@ -59,12 +61,24 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
+    if(a < p-1/2 && 2*a != floor(2*a)){
+      stop("When `Theta1` is not null, `a` must be half an integer if `a < p-1/2`")
+    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
+    if(b < p-1/2 && 2*b != floor(2*b)){
+      stop("When `Theta2` is not null, `b` must be half an integer if `b < p-1/2`")
+    }
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }else{
+    if(a < p-1/2 && 2*a != floor(2*a)){
+      stop("When `Theta1` is not null, `a` must be half an integer if `a < p-1/2`")
+    }
+    if(b < p-1/2 && 2*b != floor(2*b)){
+      stop("When `Theta2` is not null, `b` must be half an integer if `b < p-1/2`")
+    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }
@@ -99,9 +113,12 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
 #' following constraints:
 #' \itemize{
 #' \item in any case, \code{b > (p-1)/2}
-#' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2}
-#' \item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then \code{a}
-#' must be half an integer}
+#' \item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then
+#' \code{a} must be half an integer
+#' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2} and
+#' \code{a} must be half an integer if \code{a < p-1/2}
+#' \item if \code{Theta2} is not the null matrix,
+#' \code{b} must be half an integer if \code{b < p-1/2}}
 #'
 #' @note The matrix variate Beta distribution of type II is usually defined only for
 #' \eqn{a > (p-1)/2} and \eqn{b > (p-1)/2}. In this case, a random matrix \eqn{V}
@@ -125,19 +142,31 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
   if(!isRealScalar(b) || b <= 0){
     stop("`b` must be a positive number")
   }
+  if(2*b <= p-1){
+    stop("`b` must satisfy `b > (p-1)/2`")
+  }
   if(isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
-    if(2*b <= p-1){
-      stop("`b` must satisfy `b > (p-1)/2`")
-    }
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
+    if(a < p-1/2 && 2*a != floor(2*a)){
+      stop("When `Theta1` is not null, `a` must be half an integer if `a < p-1/2`")
+    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
+    if(b < p-1/2 && 2*b != floor(2*b)){
+      stop("When `Theta2` is not null, `b` must be half an integer if `b < p-1/2`")
+    }
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }else{
+    if(a < p-1/2 && 2*a != floor(2*a)){
+      stop("When `Theta1` is not null, `a` must be half an integer if `a < p-1/2`")
+    }
+    if(b < p-1/2 && 2*b != floor(2*b)){
+      stop("When `Theta2` is not null, `b` must be half an integer if `b<p-1/2`")
+    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }

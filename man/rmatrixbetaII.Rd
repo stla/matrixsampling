@@ -34,9 +34,12 @@ Parameters \code{a} and \code{b} are positive numbers that satisfy the
 following constraints:
 \itemize{
 \item in any case, \code{b > (p-1)/2}
-\item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2}
-\item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then \code{a}
-must be half an integer}
+\item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then
+\code{a} must be half an integer
+\item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2} and
+\code{a} must be half an integer if \code{a < p-1/2}
+\item if \code{Theta2} is not the null matrix,
+\code{b} must be half an integer if \code{b < p-1/2}}
 }
 \note{
 The matrix variate Beta distribution of type II is usually defined only for

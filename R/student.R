@@ -40,9 +40,7 @@ rmatrixt <- function(n, nu, M, U, V){
   Vroot <- matrixroot(V)
   m <- ifelse(isScalar(U), 1L, nrow(U))
   p <- nrow(Vroot)
-  if(isScalar(M)){
-    M <- as.matrix(M)
-  }
+  M <- as.matrix(M)
   if(m != nrow(M) || p != ncol(M)){
     stop("Incorrect dimensions")
   }
@@ -92,9 +90,7 @@ rmatrixit <- function(n, nu, M, U, V){
   Vroot <- matrixroot(V)
   m <- nrow(Uroot)
   p <- nrow(Vroot)
-  if(isScalar(M)){
-    M <- as.matrix(M)
-  }
+  M <- as.matrix(M)
   if(m != nrow(M) || p != ncol(M)){
     stop("Incorrect dimensions")
   }

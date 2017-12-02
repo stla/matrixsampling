@@ -33,9 +33,7 @@ rmatrixnormal <- function(n, M, U, V){
   Vroot <- matrixroot(V, matrixname = "V")
   m <- nrow(Uroot)
   p <- nrow(Vroot)
-  if(isScalar(M)){
-    M <- as.matrix(M)
-  }
+  M <- as.matrix(M)
   if(m != nrow(M) || p != ncol(M)){
     stop("Incorrect dimensions")
   }

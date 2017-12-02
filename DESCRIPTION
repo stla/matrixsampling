@@ -1,8 +1,8 @@
 Package: matrixsampling
 Type: Package
-Title: Simulations of matrix variate distributions
+Title: Simulations of Matrix Variate Distributions
 Version: 0.1.0
-Date: 2017-11-28
+Date: 2017-12-02
 Author: Stéphane Laurent
 Maintainer: Stéphane Laurent <laurent_step@yahoo.fr>
 Description: Provides samplers for various matrix variate distributions: Wishart, inverse-Wishart, normal, t, inverted-t, Beta type I and Beta type II.

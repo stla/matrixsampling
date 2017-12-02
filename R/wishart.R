@@ -174,8 +174,8 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
           tcrossprod(Sigma_root %*% WrootI[,,i])
       }
     }else if(nu>p){
-      if(!isPositiveInteger(nu)){
-        stop("`nu` must be an integer")
+      if(floor(nu) != nu){
+        stop("In the noncentral case, `nu` must be an integer if `nu<2*p-1`")
       }
       for(i in 1:n){
         Z <- matrix(rnorm(p*p), p, p)
@@ -184,7 +184,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL){
           Sigma_root %*%
           tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p)) %*% t(Sigma_root)
       }
-    }else{
+    }else{ # nu=p
       for(i in 1:n){
         W[,,i] <- tcrossprod(Theta_root + Sigma_root %*% matrix(rnorm(p*p), p, p))
       }
