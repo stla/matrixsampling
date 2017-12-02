@@ -31,7 +31,7 @@ simulations are stacked along the third dimension (see example).
 \description{
 Samples a Wishart distribution.
 }
-\details{
+\note{
 A sampled Wishart matrix is always positive semidefinite.
 If \code{nu > p-1}, it is positive definite.
 }

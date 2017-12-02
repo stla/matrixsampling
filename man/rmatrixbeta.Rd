@@ -37,10 +37,10 @@ following constraints:
 \code{a+b > (p-1)/2}; if \code{a <= (p-1)/2}, it must be half an integer;
 if \code{b <= (p-1)/2}, it must be half an integer
 \item if \code{Theta1} is the null matrix, \code{a > (p-1)/2} and \code{a}
-must be half an integer if \code{a<p-1/2};
+must be half an integer if \code{a < p-1/2};
 if \code{b <= (p-1)/2}, it must be half an integer
 \item if \code{Theta2} is the null matrix, \code{b > (p-1)/2} and \code{b}
-must be half an integer if \code{b<p-1/2};
+must be half an integer if \code{b < p-1/2};
 if \code{a <= (p-1)/2}, it must be half an integer}
 }
 \note{

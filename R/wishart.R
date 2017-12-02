@@ -112,7 +112,7 @@ rwishart_root_I <- function(n, nu, p){
 #' same order as \code{Sigma}; setting it to \code{NULL} (default) is
 #' equivalent to setting it to the zero matrix
 #'
-#' @details A sampled Wishart matrix is always positive semidefinite.
+#' @note A sampled Wishart matrix is always positive semidefinite.
 #' If \code{nu > p-1}, it is positive definite.
 #'
 #' @return A numeric three-dimensional array;
