@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^inst/checks\.R$
 ^inst/checks_wishartnoncentral\.R$
+^cran-comments\.md$
