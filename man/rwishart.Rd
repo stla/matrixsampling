@@ -4,7 +4,7 @@
 \alias{rwishart}
 \title{Wishart sampler}
 \usage{
-rwishart(n, nu, Sigma, Theta = NULL)
+rwishart(n, nu, Sigma, Theta = NULL, epsilon = 0)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
@@ -23,6 +23,9 @@ must satisfy these constraints:
 \item{Theta}{noncentrality parameter, a positive semidefinite real matrix of
 same order as \code{Sigma}; setting it to \code{NULL} (default) is
 equivalent to setting it to the zero matrix}
+
+\item{epsilon}{a number involved in the algorithm only if it positive; its role
+is to guarantee the invertibility of the sampled matrices; see Details}
 }
 \value{
 A numeric three-dimensional array;
@@ -31,9 +34,20 @@ simulations are stacked along the third dimension (see example).
 \description{
 Samples a Wishart distribution.
 }
+\details{
+The argument \code{epsilon} is a threshold whose role is to guarantee
+that the algorithm samples invertible matrices when \code{nu > p-1}.
+They are theoretically invertible under this condition, but due to
+numerical precision, they are not always invertible when
+\code{nu} is close to \code{p-1}, i.e. when \code{nu-p+1} is small. In this case,
+the chi-squared distributions involved in the algorithm can
+generate zero values or values close to zero, yielding the non-invertibility
+of the sampled matrices. These values are replaced with \code{epsilon} if they are
+smaller than \code{epsilon}.
+}
 \note{
 A sampled Wishart matrix is always positive semidefinite.
-If \code{nu > p-1}, it is positive definite.
+If \code{nu > p-1}, it is positive definite, in theory (see Details).
 }
 \examples{
 nu <- 4
@@ -43,4 +57,9 @@ Theta <- diag(p)
 Wsims <- rwishart(10000, nu, Sigma, Theta)
 dim(Wsims) # 3 3 10000
 apply(Wsims, 1:2, mean) # approximately nu*Sigma+Theta
+# the epsilon argument:
+Wsims_det <- apply(rwishart(10000, nu=p-1+0.001, Sigma), 3, det)
+length(which(Wsims_det < .Machine$double.eps))
+Wsims_det <- apply(rwishart(10000, nu=p-1+0.001, Sigma, epsilon=1e-8), 3, det)
+length(which(Wsims_det < .Machine$double.eps))
 }

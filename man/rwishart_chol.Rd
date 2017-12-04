@@ -4,15 +4,18 @@
 \alias{rwishart_chol}
 \title{Sampling Cholesky factor of a Wishart matrix}
 \usage{
-rwishart_chol(n, nu, Sigma)
+rwishart_chol(n, nu, Sigma, epsilon = 0)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
 
-\item{nu}{degrees of freedom, a positive number at least equal to the dimension
-(the order of \code{Sigma})}
+\item{nu}{degrees of freedom, a number strictly greater than \code{p-1},
+where \code{p} is the dimension (the order of \code{Sigma})}
 
 \item{Sigma}{scale matrix, a positive definite real matrix}
+
+\item{epsilon}{a number involved in the algorithm only if it positive; its role
+is to guarantee the invertibility of the sampled matrices; see Details}
 }
 \value{
 A numeric three-dimensional array;
@@ -20,6 +23,17 @@ simulations are stacked along the third dimension (see example).
 }
 \description{
 Samples the lower triangular Cholesky factor of a Wishart random matrix.
+}
+\details{
+The argument \code{epsilon} is a threshold whose role is to guarantee
+that the algorithm samples invertible matrices.
+The matrices sampled by the algorithm are theoretically invertible.
+However, because of numerical precision, they are not always invertible when
+\code{nu} is close to \code{p-1}, i.e. when \code{nu-p+1} is small. In this case,
+the simulations of chi-squared distributions involved in the algorithm can
+generate zero values or values close to zero, yielding the non-invertibility
+of the sampled matrices. These values are replaced with \code{epsilon} if they are
+smaller than \code{epsilon}.
 }
 \examples{
 nu <- 4
