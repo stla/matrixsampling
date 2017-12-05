@@ -108,8 +108,7 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE,
   out
 }
 
-rwishart_root_I <- function(n, nu, p, epsilon=0){
-  # rename to rwishart_chol_I ?
+rwishart_chol_I <- function(n, nu, p, epsilon=0){
   # samples R such that RR' ~ W(nu, I_p)
   # nu > p-1 only
   chisims <- matrix(NA_real_, p, n)
@@ -127,6 +126,61 @@ rwishart_root_I <- function(n, nu, p, epsilon=0){
     out[,,i] <- Z
   }
   out
+}
+
+rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
+  d <- nrow(Theta)
+  rChi2 <- if(epsilon>0 && m==d && nu>d-1){
+    function(n, df, ncp){
+      pmax(rchisq(n, df, ncp), epsilon)
+    }
+  }else{
+    rchisq
+  }
+  ec <- extendedCholesky(Theta[-1L,-1L]) # marche pas si Theta scalaire!
+  L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
+  r <- nrow(L)
+  Pi <- cbind(c(1,rep(0,d-1L)), rbind(0,P))
+  xtilde <- Pi %*% Theta %*% t(Pi)
+  u1 <- c(forwardsolve(L, diag(r)) %*% xtilde[1L, 2L:(r+1L)])
+  U11 <- rChi2(n, df=nu-r, ncp=max(0, xtilde[1L,1L]-sum(u1^2)))
+  U <- sweep(matrix(rnorm(r*n),r,n), 1L, u1, "+")
+  B <- t(Pi) %*% cbind(c(1,rep(0,d-1L)), rbind(0, Ctilde))
+  Wsims <- array(NA_real_, dim=c(d, d, nsims))
+  for(i in 1:n){
+    Y <- matrix(0, d, d)
+    Y[1L:(r+1L), 1L:(r+1L)] <- cbind(c(U11[i] + sum(U[,i]^2), U[,i]),
+                                     rbind(U[,i], diag(r)))
+    Wsims[,,i] <- B %*% Y %*% t(B)
+  }
+  for(k in (1L+seq_len(m-1L))){
+    p <- 1L:d; p[k] <- 1L; p[1L] <- k
+    Wsims <- Wsims[p,p,]
+    for(i in 1L:n){
+      ec <- extendedCholesky(Wsims[-1L,-1L,i])
+      L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
+      r <- nrow(L)
+      Pi <- cbind(c(1,rep(0,d-1L)), rbind(0,P))
+      xtilde <- Pi %*% Wsims[,,i] %*% t(Pi)
+      u1 <- c(forwardsolve(L, diag(r)) %*% xtilde[1L, 2L:(r+1L)])
+      U11 <- rChi2(1L, df=nu-r, ncp=max(0, xtilde[1L,1L]-sum(u1^2)))
+      U <- rnorm(r) + c(forwardsolve(L, diag(r)) %*% xtilde[1L, 2L:(r+1L)])
+      B <- t(Pi) %*% cbind(c(1,rep(0,d-1L)), rbind(0, Ctilde))
+      Y <- matrix(0, d, d)
+      Y[1L:(r+1L), 1L:(r+1L)] <- cbind(c(U11 + sum(U^2), U), rbind(U, diag(r)))
+      Wsims[,,i] <- (B %*% Y %*% t(B))[p,p]
+    }
+  }
+  Wsims
+}
+
+rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
+  ec <- extendedCholesky(Sigma)
+  L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
+  theta <- t(P) %*% Ctilde
+  thetainv <- forwardsolve(Ctilde, diag(nrow(P))) %*% P
+  Y <- rwishart_AA_Im(n, nu, nrow(L), thetainv%*%Theta%*%t(thetainv), epsilon)
+  array(apply(Y, 3L, function(x) theta%*%x%*%t(theta)), dim=dim(Y))
 }
 
 #' Wishart sampler
@@ -150,7 +204,8 @@ rwishart_root_I <- function(n, nu, p, epsilon=0){
 #' is to guarantee the invertibility of the sampled matrices; see Details
 #'
 #' @note A sampled Wishart matrix is always positive semidefinite.
-#' If \code{nu > p-1}, it is positive definite, in theory (see Details).
+#' It is positive definite if \code{nu > p-1} and \code{Sigma} is positive
+#' definite, in theory (see Details).
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
@@ -158,7 +213,8 @@ rwishart_root_I <- function(n, nu, p, epsilon=0){
 #' @importFrom stats rnorm rchisq
 #'
 #' @details The argument \code{epsilon} is a threshold whose role is to guarantee
-#' that the algorithm samples invertible matrices when \code{nu > p-1}.
+#' that the algorithm samples invertible matrices when \code{nu > p-1} and
+#' \code{Sigma} is positive definite.
 #' They are theoretically invertible under this condition, but due to
 #' numerical precision, they are not always invertible when
 #' \code{nu} is close to \code{p-1}, i.e. when \code{nu-p+1} is small. In this case,
@@ -187,9 +243,9 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
   if(!isRealScalar(nu)){
     stop("`nu` must be a positive number")
   }
-  Sigma_root <- matrixroot(Sigma)
-  p <- nrow(Sigma_root)
+  p <- ifelse(isScalar(Sigma), 1L, nrow(Sigma_root))
   if(isNullOrZeroMatrix(Theta)){
+    Sigma_root <- matrixroot(Sigma)
     if(nu > p-1){
       R <- rwishart_root(n, nu, Sigma_root=Sigma_root, check=FALSE, epsilon=epsilon)
       out <- array(NA_real_, dim=dim(R))
@@ -210,36 +266,46 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
     if(!(isScalar(Sigma) && isScalar(Theta)) && !identical(dim(Sigma), dim(Theta))){
       stop("`Sigma` and `Theta` must have the same dimension")
     }
-    if(nu <= p-1){
+    if(p == 1){
+      W <- array(NA_real_, dim=c(p,p,n))
+      W[1,1,] <- c(Sigma)*rchisq(n, df=nu, ncp=c(Theta))
+      return(W)
+    }
+    if(nu < p-1){
       stop(
         sprintf(
           "`nu` (%s) must be greater than `p-1` (%s) in the noncentral case", nu, p-1))
     }
-    Theta_root <- matrixroot(Theta, matrixname = "Theta")
     W <- array(NA_real_, dim=c(p,p,n))
     if(nu > 2*p-1){
-      WrootI <- rwishart_root_I(n, nu-p, p, epsilon)
+      Sigma_root <- matrixroot(Sigma)
+      Theta_root <- matrixroot(Theta, matrixname = "Theta")
+      WrootI <- rwishart_chol_I(n, nu-p, p, epsilon)
       for(i in 1:n){
         Z <- matrix(rnorm(p*p), p, p)
         W[,,i] <- (Theta_root + Sigma_root %*% Z) %*%
           (Theta_root + t(Z) %*% Sigma_root) +
           tcrossprod(Sigma_root %*% WrootI[,,i])
       }
-    }else if(nu>p){
-      if(floor(nu) != nu){
-        stop("In the noncentral case, `nu` must be an integer if `nu<2*p-1`")
+    }else if(floor(nu) == nu && nu != p-1){ # nu is an integer >= p
+      Sigma_root <- matrixroot(Sigma)
+      Theta_root <- matrixroot(Theta, matrixname = "Theta")
+      if(nu != p){
+        for(i in 1:n){
+          Z <- matrix(rnorm(p*p), p, p)
+          W[,,i] <- (Theta_root + Sigma_root %*% Z) %*%
+            (Theta_root + t(Z) %*% Sigma_root) +
+            Sigma_root %*%
+            tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p)) %*% t(Sigma_root)
+        }
+      }else{ # nu=p
+        for(i in 1:n){
+          W[,,i] <- tcrossprod(Theta_root + Sigma_root %*% matrix(rnorm(p*p), p, p))
+        }
       }
-      for(i in 1:n){
-        Z <- matrix(rnorm(p*p), p, p)
-        W[,,i] <- (Theta_root + Sigma_root %*% Z) %*%
-          (Theta_root + t(Z) %*% Sigma_root) +
-          Sigma_root %*%
-          tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p)) %*% t(Sigma_root)
-      }
-    }else{ # nu=p
-      for(i in 1:n){
-        W[,,i] <- tcrossprod(Theta_root + Sigma_root %*% matrix(rnorm(p*p), p, p))
-      }
+    }else{ # nu is not an integer or nu = p-1
+      invisible(isSymmetricPositive(Sigma) && isSymmetricPositive(Theta))
+      W <- rwishart_AA(n, nu, Sigma, Theta, epsilon)
     }
     return(W)
   }
@@ -275,35 +341,38 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
     return(out)
   }else{
     if(!(p==1 && isScalar(Theta)) && !all(c(p,p)==dim(Theta))){
-      stop("`Theta` must have dimension p x p")
+      stop("`Theta` must have dimension `p x p`")
     }
-    if(nu <= p-1){
+    if(nu < p-1){
       stop(
         sprintf(
           "`nu` (%s) must be greater than `p-1` (%s) in the noncentral case", nu, p-1))
     }
-    Theta_root <- matrixroot(Theta, matrixname = "Theta")
     W <- array(NA_real_, dim=c(p,p,n))
     if(nu > 2*p-1){
-      WrootI <- rwishart_root_I(n, nu-p, p, epsilon)
+      Theta_root <- matrixroot(Theta, matrixname = "Theta")
+      WrootI <- rwishart_chol_I(n, nu-p, p, epsilon)
       for(i in 1:n){
         Z <- matrix(rnorm(p*p), p, p)
         W[,,i] <- (Theta_root + Z) %*% (Theta_root + t(Z)) +
           tcrossprod(WrootI[,,i])
       }
-    }else if(nu>p){
-      if(!isPositiveInteger(nu)){
-        stop("`nu` must be an integer")
+    }else if(floor(nu) == nu && nu != p-1){ # nu is an integer >= p
+      Theta_root <- matrixroot(Theta, matrixname = "Theta")
+      if(nu != p){
+        for(i in 1:n){
+          Z <- matrix(rnorm(p*p), p, p)
+          W[,,i] <- (Theta_root + Z) %*% (Theta_root + t(Z)) +
+            tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p))
+        }
+      }else{ # nu=p
+        for(i in 1:n){
+          W[,,i] <- tcrossprod(Theta_root + matrix(rnorm(p*p), p, p))
+        }
       }
-      for(i in 1:n){
-        Z <- matrix(rnorm(p*p), p, p)
-        W[,,i] <- (Theta_root + Z) %*% (Theta_root + t(Z)) +
-          tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p))
-      }
-    }else{
-      for(i in 1:n){
-        W[,,i] <- tcrossprod(Theta_root + matrix(rnorm(p*p), p, p))
-      }
+    }else{ # nu is not an integer or nu = p-1
+      invisble(isSymmetricPositive(Theta))
+      W <- rwishart_AA_Im(n, nu, p, Theta, epsilon)
     }
     return(W)
   }
