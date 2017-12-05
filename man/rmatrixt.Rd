@@ -4,7 +4,7 @@
 \alias{rmatrixt}
 \title{Matrix t sampler}
 \usage{
-rmatrixt(n, nu, M, U, V)
+rmatrixt(n, nu, M, U, V, checkSymmetry = TRUE)
 }
 \arguments{
 \item{n}{sample size, a positive integer}

@@ -30,14 +30,14 @@
 #' apply(Tsims, 1:2, mean) # approximates M
 #' vecTsims <- t(apply(Tsims, 3, function(X) c(t(X))))
 #' round(cov(vecTsims), 1) # approximates 1/(nu-2) * kronecker(U,V)
-rmatrixt <- function(n, nu, M, U, V){
+rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
   if(!isRealScalar(nu) || nu <= 0){
     stop("`nu` must be a positive number")
   }
-  Vroot <- matrixroot(V)
+  Vroot <- matrixroot(V, matrixname="V", symmetric=!checkSymmetry)
   m <- ifelse(isScalar(U), 1L, nrow(U))
   p <- nrow(Vroot)
   M <- as.matrix(M)

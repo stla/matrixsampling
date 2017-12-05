@@ -33,13 +33,13 @@ any(detsims < .Machine$double.eps)
 # p-1 <= nu < 2p-1
 nsims <- 50000
 p <- 4
-nu <- 6 # 3 # 3.5
+nu <- 4 # 3 # 3.5
 Sigma <- diag(p) # toeplitz(p:1)
 Theta <- tcrossprod(c(1, rep(0,p-1))) #  toeplitz(p:1)
 Wsims <- rwishart(nsims, nu, Sigma, Theta)
 round(apply(Wsims, 1:2, mean), 3)
 nu*Sigma + Theta
-Z <- 0.01*diag(p) + matrix(0.01, p, p)
+Z <- 0.04*diag(p) + matrix(0.01, p, p)
 phi(Z, nu, Sigma, Theta)
 mean(apply(Wsims, 3, function(x) exp(tr(1i*Z%*%x))))
 # for Theta = (theta, 0, ...) and Sigma=Id

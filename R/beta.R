@@ -41,7 +41,8 @@
 #' @examples
 #' Bsims <- rmatrixbeta(10000, 3, 1, 1)
 #' dim(Bsims) # 3 3 10000
-rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
+rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=2){
+  def <- match.arg(as.character(def), choices=1:2)
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
@@ -58,34 +59,43 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
     if(2*a+2*b <= p-1){
       stop("`a` and `b` must satisfy `a+b > (p-1)/2`")
     }
-    W1 <- rwishart_I(n, 2*a, p)
+    W1root <- rwishart_chol_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p)
-  }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
-    if(a < p-1/2 && 2*a != floor(2*a)){
-      stop("When `Theta1` is not null, `a` must be half an integer if `a < p-1/2`")
+    out <- array(NA_real_, dim=c(p,p,n))
+    for(i in 1:n){
+      out[,,i] <- W1root[,,i] %*%
+        chol2inv(chol(tcrossprod(W1root[,,i]) + W2[,,i])) %*% t(W1root[,,i])
     }
+    return(out)
+  }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
-    if(b < p-1/2 && 2*b != floor(2*b)){
-      stop("When `Theta2` is not null, `b` must be half an integer if `b < p-1/2`")
+    W2 <- rwishart_I(n, 2*b, p, Theta2)
+    if(def==2){
+      W1root <- rwishart_chol_I(n, 2*a, p)
+      out <- array(NA_real_, dim=c(p,p,n))
+      for(i in 1:n){
+        out[,,i] <- W1root[,,i] %*%
+          chol2inv(chol(tcrossprod(W1root[,,i]) + W2[,,i])) %*% t(W1root[,,i])
+      }
     }
     W1 <- rwishart_I(n, 2*a, p)
-    W2 <- rwishart_I(n, 2*b, p, Theta2)
   }else{
-    if(a < p-1/2 && 2*a != floor(2*a)){
-      stop("When `Theta1` is not null, `a` must be half an integer if `a < p-1/2`")
-    }
-    if(b < p-1/2 && 2*b != floor(2*b)){
-      stop("When `Theta2` is not null, `b` must be half an integer if `b < p-1/2`")
-    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }
   out <- array(NA_real_, dim=c(p,p,n))
-  for(i in 1:n){
-    A <- invsqrtm(W1[,,i] + W2[,,i])
-    out[,,i] <- A %*% W1[,,i] %*% A
+  if(def==1){
+    for(i in 1:n){
+      A <- invsqrtm(W1[,,i] + W2[,,i])
+      out[,,i] <- A %*% W1[,,i] %*% A
+    }
+  }else{
+    for(i in 1:n){
+      A <- chol(W1[,,i])
+      out[,,i] <- A %*% chol2inv(chol(W1[,,i] + W2[,,i])) %*% t(A)
+    }
   }
   out
 }
@@ -129,7 +139,7 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
 #' @examples
 #' Bsims <- rmatrixbetaII(10000, 3, 1, 1.5)
 #' dim(Bsims) # 3 3 10000
-rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
+rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
@@ -149,31 +159,26 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL){
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
-    if(a < p-1/2 && 2*a != floor(2*a)){
-      stop("When `Theta1` is not null, `a` must be half an integer if `a < p-1/2`")
-    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
-    if(b < p-1/2 && 2*b != floor(2*b)){
-      stop("When `Theta2` is not null, `b` must be half an integer if `b < p-1/2`")
-    }
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }else{
-    if(a < p-1/2 && 2*a != floor(2*a)){
-      stop("When `Theta1` is not null, `a` must be half an integer if `a < p-1/2`")
-    }
-    if(b < p-1/2 && 2*b != floor(2*b)){
-      stop("When `Theta2` is not null, `b` must be half an integer if `b<p-1/2`")
-    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }
   out <- array(NA_real_, dim=c(p,p,n))
-  for(i in 1:n){
-    A <- invsqrtm(W2[,,i])
-    out[,,i] <- A %*% W1[,,i] %*% A
+  if(def==1){
+    for(i in 1:n){
+      A <- invsqrtm(W2[,,i])
+      out[,,i] <- A %*% W1[,,i] %*% A
+    }
+  }else{
+    for(i in 1:n){
+      A <- matrixroot(W1[,,i]) # con dans le cas Theta1=0
+      out[,,i] <- A %*% chol2inv(chol(W2[,,i])) %*% A # con dans le cas Theta2=0
+    }
   }
   out
 }

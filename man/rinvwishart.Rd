@@ -4,7 +4,7 @@
 \alias{rinvwishart}
 \title{Inverse-Wishart sampler}
 \usage{
-rinvwishart(n, nu, Omega, epsilon = 0)
+rinvwishart(n, nu, Omega, epsilon = 0, checkSymmetry = TRUE)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
@@ -13,6 +13,11 @@ rinvwishart(n, nu, Omega, epsilon = 0)
 the dimension (the order of \code{Omega})}
 
 \item{Omega}{scale matrix, a positive definite real matrix}
+
+\item{epsilon}{threshold to force invertibility in the algorithm; see Details}
+
+\item{checkSymmetry}{logical, whether to check the symmetry of \code{Omega};
+if \code{FALSE}, only the upper triangular part of \code{Omega} is used}
 }
 \value{
 A numeric three-dimensional array;

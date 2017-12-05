@@ -55,7 +55,7 @@ for(i in 1:nsims){
   y <- rnorm(3)
   sims2[i] <- (t(y) %*% SigmaPlus %*% y) / (t(y) %*% MASS::ginv(sims[,,i]) %*% y)
 }
-curve(ecdf(sims2)(x), to=10)
+curve(ecdf(sims2)(x), to=quantile(sims2, 0.95))
 curve(pchisq(x, nu-r+1), add=TRUE, col="red")
 
 
@@ -80,7 +80,7 @@ curve(ecdf(betasims)(x), add=TRUE, col="red")
 nu <- 5
 p <- 3
 S <- rwishart(1, p, diag(p))[,,1]
-nsims <- 100000
+nsims <- 200000
 sims <- rinvwishart(nsims, nu, S)
 apply(sims, c(1,2), mean)
 S / (nu-p-1)
@@ -90,7 +90,7 @@ p <- 3
 nu <- 6.5
 Sigma <- rwishart(1, p, diag(p))[,,1]
 Theta <- rwishart(1, p, diag(p))[,,1]
-nsims <- 50000
+nsims <- 150000
 sims <- rwishart(nsims, nu, Sigma, Theta)
 
 ## check mean
@@ -109,7 +109,7 @@ n1 <- 16
 n2 <- 3
 p <- 3
 Theta <- rwishart(1, p, diag(p))[,,1]
-nsims <- 20000
+nsims <- 100000
 sims <- rmatrixbeta(nsims, p, n1, n2, Theta2=Theta)
 
 ## check moments of determinant
@@ -158,7 +158,7 @@ V <- rwishart(1, p, diag(p))[,,1] # arbitrary V matrix
 Uinv <- solve(U)
 Vinv <- solve(V) # inverse V
 nu <- 6 # degrees of freedom
-nsims <- 20000
+nsims <- 100000
 sims <- rmatrixt(nsims, nu, M, U, V)
 
 ## check U-distribution
@@ -236,7 +236,6 @@ mbeta <- function(p, a, b){ # multivariate Beta
     (sum(lgamma(b + (1-(1:p))/2))) -
     ( sum(lgamma(a+b + (1-(1:p))/2))))
 }
-
 Z <- toeplitz(2:1)
 b <- 3/2 # ça marche que pour b=3/2 - non c'est la convergence qui est lente
 bsims <- rmatrixbetaII(nsims, 2, a, b)
@@ -324,15 +323,29 @@ curve(ecdf(corsims)(x), add=TRUE, col="blue")
 
 #### simulates Beta II by conditional approach ####
 p <- 3
-a <- (p-1)/2+0.01; b <- (p-1)/2+0.01
+a <- (p-1)/2+0.501; b <- (p-1)/2+0.501
 p2 <- 1; p1 <- p-1
 b-p2/2; p1/2 # pas poss
 a-p1/2; p2/2 # pas poss
 nsims <- 10000
 V11 <- rmatrixbetaII(nsims, p1, a, b-p2/2)
 V221 <- rmatrixbetaII(nsims, p2, a-p1/2, b)
-V21 <- array(NA_real_, dim=c(p2, p1, nsims))
+V <- array(NA_real_, dim=c(p,p,nsims))
 for(i in 1:nsims){
-  V21[,,i] <-
-    rmatrixt(1, 2*a+2*b-p+1, matrix(0, p2, p1), diag(p2)+V221[,,i], V11[,,i]*(diag(p1)+V11[,,i]))[,,1]
+  V21 <-
+    matrix(rmatrixt(1, 2*a+2*b-p+1, matrix(0, p2, p1),
+             diag(p2)+V221[,,i],
+             V11[,,i]*(diag(p1)+V11[,,i]), checkSymmetry = FALSE)[,,1], p2, p1)
+  V22 <- V221[,,i] + V21%*%chol2inv(chol(V11[,,i]))%*%t(V21)
+  V[,,i] <- cbind(rbind(V11[,,i], V21), rbind(t(V21), V22))
 }
+
+detsims <- apply(V, 3, det)
+curve(ecdf(detsims)(x), to=quantile(detsims, 0.9))
+e <- 2*a
+h <- 2*b
+betasims <- brr::rbeta2(nsims, e/2, h/2, scale=1)
+for(i in seq_len(p-1)){
+  betasims <- betasims * brr::rbeta2(nsims, (e-i)/2, (h-i)/2, scale=1)
+}
+curve(ecdf(betasims)(x), add=TRUE, col="red")

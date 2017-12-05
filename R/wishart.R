@@ -368,7 +368,7 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
         }
       }
     }else{ # nu is not an integer or nu = p-1
-      invisble(isSymmetricPositive(Theta))
+      invisible(isSymmetricPositive(Theta))
       W <- rwishart_AA_Im(n, nu, p, Theta, epsilon)
     }
     return(W)
@@ -383,6 +383,9 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
 #' @param nu degrees of freedom, must satisfy \code{nu > p-1}, where \code{p} is
 #' the dimension (the order of \code{Omega})
 #' @param Omega scale matrix, a positive definite real matrix
+#' @param epsilon threshold to force invertibility in the algorithm; see Details
+#' @param checkSymmetry logical, whether to check the symmetry of \code{Omega};
+#' if \code{FALSE}, only the upper triangular part of \code{Omega} is used
 #'
 #'
 #' @return A numeric three-dimensional array;
@@ -411,15 +414,15 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
 #'                    error=function(e) e)
 #' IWsims <- tryCatch(rinvwishart(10000, nu=p+0.001, Omega, epsilon=1e-8),
 #'                    error=function(e) e)
-rinvwishart <- function(n, nu, Omega, epsilon=0){
+rinvwishart <- function(n, nu, Omega, epsilon=0, checkSymmetry=TRUE){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
   if(!isRealScalar(nu)){
     stop("`nu` must be a positive number")
   }
-  if(!isSymmetricMatrix(Omega)){
-    stop("`Sigma` is not symmetric")
+  if(checkSymmetry && !isSymmetricMatrix(Omega)){
+    stop("`Omega` is not symmetric")
   }
   Omegainv_chol <- chol(chol2inv(chol(Omega)))
   p <- nrow(Omegainv_chol)

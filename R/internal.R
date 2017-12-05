@@ -30,7 +30,7 @@ isSymmetricPositive <- function(Sigma, matrixname="Sigma"){
   TRUE
 }
 
-matrixroot <- function(Sigma, matrixname="Sigma"){
+matrixroot <- function(Sigma, symmetric=FALSE, matrixname="Sigma"){
   if(isScalar(Sigma)){
     if(Sigma >= 0){
       return(as.matrix(sqrt(Sigma)))
@@ -43,7 +43,7 @@ matrixroot <- function(Sigma, matrixname="Sigma"){
     stop(sprintf("`%s` must be a symmetric positive matrix - it is not square",
                  matrixname), call. = FALSE)
   }
-  if(!isSymmetricMatrix(Sigma)){
+  if(!symmetric && !isSymmetricMatrix(Sigma)){
     stop(sprintf("`%s` must be a symmetric positive matrix - it is not symmetric",
                  matrixname), call. = FALSE)
   }
