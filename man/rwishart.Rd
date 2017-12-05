@@ -10,13 +10,10 @@ rwishart(n, nu, Sigma, Theta = NULL, epsilon = 0)
 \item{n}{sample size, a positive integer}
 
 \item{nu}{degrees of freedom, a positive number;
-if \code{nu <= p-1} where \code{p} is the dimension (the order of \code{Sigma}),
+if \code{nu < p-1} where \code{p} is the dimension (the order of \code{Sigma}),
 must be an integer;
 in the noncentral case (i.e. when \code{Theta} is not the null matrix), \code{nu}
-must satisfy these constraints:
-\itemize{
-\item \code{nu >= p}
-\item if \code{nu <= 2*p-1}, it must be an integer}}
+must satisfy \code{nu >= p-1}}
 
 \item{Sigma}{scale matrix, a positive semidefinite real matrix}
 
@@ -36,7 +33,8 @@ Samples a Wishart distribution.
 }
 \details{
 The argument \code{epsilon} is a threshold whose role is to guarantee
-that the algorithm samples invertible matrices when \code{nu > p-1}.
+that the algorithm samples invertible matrices when \code{nu > p-1} and
+\code{Sigma} is positive definite.
 They are theoretically invertible under this condition, but due to
 numerical precision, they are not always invertible when
 \code{nu} is close to \code{p-1}, i.e. when \code{nu-p+1} is small. In this case,
@@ -47,7 +45,8 @@ smaller than \code{epsilon}.
 }
 \note{
 A sampled Wishart matrix is always positive semidefinite.
-If \code{nu > p-1}, it is positive definite, in theory (see Details).
+It is positive definite if \code{nu > p-1} and \code{Sigma} is positive
+definite, in theory (see Details).
 }
 \examples{
 nu <- 4

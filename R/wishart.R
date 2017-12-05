@@ -189,13 +189,10 @@ rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
 #'
 #' @param n sample size, a positive integer
 #' @param nu degrees of freedom, a positive number;
-#' if \code{nu <= p-1} where \code{p} is the dimension (the order of \code{Sigma}),
+#' if \code{nu < p-1} where \code{p} is the dimension (the order of \code{Sigma}),
 #' must be an integer;
 #' in the noncentral case (i.e. when \code{Theta} is not the null matrix), \code{nu}
-#' must satisfy these constraints:
-#' \itemize{
-#' \item \code{nu >= p}
-#' \item if \code{nu <= 2*p-1}, it must be an integer}
+#' must satisfy \code{nu >= p-1}
 #' @param Sigma scale matrix, a positive semidefinite real matrix
 #' @param Theta noncentrality parameter, a positive semidefinite real matrix of
 #' same order as \code{Sigma}; setting it to \code{NULL} (default) is
@@ -243,7 +240,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
   if(!isRealScalar(nu)){
     stop("`nu` must be a positive number")
   }
-  p <- ifelse(isScalar(Sigma), 1L, nrow(Sigma_root))
+  p <- ifelse(isScalar(Sigma), 1L, nrow(Sigma))
   if(isNullOrZeroMatrix(Theta)){
     Sigma_root <- matrixroot(Sigma)
     if(nu > p-1){
