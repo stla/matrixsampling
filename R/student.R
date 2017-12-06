@@ -9,6 +9,7 @@
 #' to \code{nrow(M)}
 #' @param V rows covariance matrix, a positive semidefinite matrix of order equal
 #' to \code{ncol(M)}
+#' @param checkSymmetry logical, whether to check the symmetry of \code{U} and \code{V}
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).

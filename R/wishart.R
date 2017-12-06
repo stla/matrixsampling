@@ -137,7 +137,7 @@ rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
   }else{
     rchisq
   }
-  ec <- extendedCholesky(Theta[-1L,-1L]) # marche pas si Theta scalaire!
+  ec <- extendedCholesky(Theta[-1L,-1L])
   L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
   r <- nrow(L)
   Pi <- cbind(c(1,rep(0,d-1L)), rbind(0,P))
@@ -146,7 +146,7 @@ rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
   U11 <- rChi2(n, df=nu-r, ncp=max(0, xtilde[1L,1L]-sum(u1^2)))
   U <- sweep(matrix(rnorm(r*n),r,n), 1L, u1, "+")
   B <- t(Pi) %*% cbind(c(1,rep(0,d-1L)), rbind(0, Ctilde))
-  Wsims <- array(NA_real_, dim=c(d, d, nsims))
+  Wsims <- array(NA_real_, dim=c(d, d, n))
   for(i in 1:n){
     Y <- matrix(0, d, d)
     Y[1L:(r+1L), 1L:(r+1L)] <- cbind(c(U11[i] + sum(U[,i]^2), U[,i]),

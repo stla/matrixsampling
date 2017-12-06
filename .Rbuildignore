@@ -3,3 +3,9 @@
 ^inst/checks\.R$
 ^inst/checks_wishartnoncentral\.R$
 ^cran-comments\.md$
+^inst/checks_beta\.R$
+^inst/checks_h1F1\.R$
+^inst/checks_wishart_epsilon\.R$
+^inst/BetaMatrix\.html$
+^inst/BetaMatrix\.Rmd$
+^TODO\.txt$

@@ -186,11 +186,12 @@ VtoU <- function(Vsims){
 nsims <- 30000
 p <- 4
 a <- 2; b <- 2
-Theta <- tcrossprod(1:p)
-U1 <- rmatrixbeta(nsims, p, a, b, def=1, Theta2=Theta)
-V1 <- rmatrixbetaII(nsims, p, a, b, def=1, Theta2=Theta)
-U2 <- rmatrixbeta(nsims, p, a, b, def=2, Theta2=Theta)
-V2 <- rmatrixbetaII(nsims, p, a, b, def=2, Theta2=Theta)
+Theta1 <- 3*diag(p) #tcrossprod(1:p)
+Theta2 <- 5*diag(p) #toeplitz(p:1)
+U1 <- rmatrixbeta(nsims, p, a, b, def=1, Theta1=Theta1, Theta2=Theta2)
+V1 <- rmatrixbetaII(nsims, p, a, b, def=1,Theta1=Theta1, Theta2=Theta2)
+U2 <- rmatrixbeta(nsims, p, a, b, def=2, Theta1=Theta1, Theta2=Theta2)
+V2 <- rmatrixbetaII(nsims, p, a, b, def=2, Theta1=Theta1, Theta2=Theta2)
 curve(ecdf(U1[3,2,]+U1[1,2,]*exp(U1[1,2,]))(x))
 curve(ecdf(U2[3,2,]+U2[1,2,]*exp(U2[1,2,]))(x), add=TRUE, col="red")
 phiU1 <- Phi(U1)
@@ -224,6 +225,7 @@ curve(ecdf(detV2)(x), add=TRUE, col="blue")
 # Theta1 : def1 def2 pareil pour U (PAS SÛR, légère différence), différence pour V
   # transfo ok pour def2, pas pour def1
 # => def 3 pour type I: Asoo's definition U = V(I+V)^{-1} où V ~ BetaII def I
+#   det et tr même loi pour def 3 ?
 
 
 V1transfo <- array(apply(V1, 3,

@@ -115,6 +115,7 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=2){
 #' @param Theta2 denominator noncentrality parameter, a positive semidefinite real
 #' matrix of order \code{p}; setting it to \code{NULL} (default) is
 #' equivalent to setting it to the zero matrix
+#' @param def \code{1} or \code{2}, the definition used; see Details
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
@@ -154,6 +155,7 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=2){
 #' Bsims <- rmatrixbetaII(10000, 3, 1, 1.5)
 #' dim(Bsims) # 3 3 10000
 rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
+  def <- match.arg(as.character(def), choices=1:2)
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }

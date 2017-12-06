@@ -21,6 +21,8 @@ equivalent to setting it to the zero matrix}
 \item{Theta2}{denominator noncentrality parameter, a positive semidefinite real
 matrix of order \code{p}; setting it to \code{NULL} (default) is
 equivalent to setting it to the zero matrix}
+
+\item{def}{\code{1} or \code{2}, the definition used; see Details}
 }
 \value{
 A numeric three-dimensional array;
