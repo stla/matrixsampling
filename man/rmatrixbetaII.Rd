@@ -4,7 +4,7 @@
 \alias{rmatrixbetaII}
 \title{Matrix Beta II sampler}
 \usage{
-rmatrixbetaII(n, p, a, b, Theta1 = NULL, Theta2 = NULL)
+rmatrixbetaII(n, p, a, b, Theta1 = NULL, Theta2 = NULL, def = 1)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
@@ -30,16 +30,29 @@ simulations are stacked along the third dimension (see example).
 Samples a matrix Beta type II distribution.
 }
 \details{
+A Beta type II random matrix \eqn{V} is defined as follows.
+Take two independent Wishart random matrices
+\ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim W_p(2a,I_p,\Theta_1)}}
+and
+\ifelse{html}{\out{S<sub>2</sub> ~ W<sub>p</sub>(2b,I<sub>p</sub>,&Theta;<sub>2</sub>)}}{\eqn{S_2 \sim W_p(2b,I_p,\Theta_2)}}.
+\itemize{
+\item \strong{definition 1}:
+\ifelse{html}{\out{V = S<sub>2</sub><sup>-&frac12;</sup>S<sub>1</sub>S<sub>2</sub><sup>-&frac12;</sup>}}{\eqn{V = S_2^{-\frac12}S_1S_2^{-\frac12}}}
+\item \strong{definition 2}:
+\ifelse{html}{\out{V = S<sub>1</sub><sup>&frac12;</sup>S<sub>2</sub><sup>-1</sup>S<sub>1</sub><sup>&frac12;</sup>}}{\eqn{V = S_1^\frac12 S_2^{-1}S_1^\frac12}}
+}
+In the central case, the two definitions yield the same distribution.
+Under definition 2, the Beta type II distribution is related to the Beta
+distribution by
+\ifelse{html}{\out{V ~ U(I-U)<sup>-1</sup>}}{\eqn{V \sim U{(I-U)}^{-1}}}.
+
 Parameters \code{a} and \code{b} are positive numbers that satisfy the
 following constraints:
 \itemize{
 \item in any case, \code{b > (p-1)/2}
 \item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then
 \code{a} must be half an integer
-\item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2} and
-\code{a} must be half an integer if \code{a < p-1/2}
-\item if \code{Theta2} is not the null matrix,
-\code{b} must be half an integer if \code{b < p-1/2}}
+\item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2}}
 }
 \note{
 The matrix variate Beta distribution of type II is usually defined only for

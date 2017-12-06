@@ -12,22 +12,37 @@
 #' @param Theta2 denominator noncentrality parameter, a positive semidefinite real
 #' matrix of order \code{p}; setting it to \code{NULL} (default) is
 #' equivalent to setting it to the zero matrix
+#' @param def \code{1}, \code{2} or \code{3}, the definition used; see Details
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
 #' @export
 #'
-#' @details Parameters \code{a} and \code{b} are positive numbers that satisfy the
+#' @details A Beta random matrix \eqn{U} is defined as follows.
+#' Take two independent Wishart random matrices
+#' \ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim W_p(2a,I_p,\Theta_1)}}
+#' and
+#' \ifelse{html}{\out{S<sub>2</sub> ~ W<sub>p</sub>(2b,I<sub>p</sub>,&Theta;<sub>2</sub>)}}{\eqn{S_2 \sim W_p(2b,I_p,\Theta_2)}}.
+#' \itemize{
+#' \item \strong{definition 1}:
+#' \ifelse{html}{\out{U = (S<sub>1</sub>+S<sub>2</sub>)<sup>-&frac12;</sup>S<sub>1</sub>(S<sub>1</sub>+S<sub>2</sub>)<sup>-&frac12;</sup>}}{\eqn{U = {(S_1+S_2)}^{-\frac12}S_1{(S_1+S_2)}^{-\frac12}}}
+#' \item \strong{definition 2}:
+#' \ifelse{html}{\out{U = S<sub>1</sub><sup>&frac12;</sup>(S<sub>1</sub>+S<sub>2</sub>)<sup>-1</sup>S<sub>1</sub><sup>&frac12;</sup>}}{\eqn{U=S_1^\frac12{(S_1+S_2)}^{-1}S_1^\frac12}}
+#' }
+#' In the central case, the two definitions yield the same distribution.
+#' Under definition 2, the Beta distribution is related to the Beta type II
+#' distribution by
+#' \ifelse{html}{\out{U ~ V(I+V)<sup>-1</sup>}}{\eqn{U \sim V{(I+V)}^{-1}}}.
+#'
+#' Parameters \code{a} and \code{b} are positive numbers that satisfy the
 #' following constraints:
 #' \itemize{
 #' \item if both \code{Theta1} and \code{Theta2} are the null matrix,
 #' \code{a+b > (p-1)/2}; if \code{a <= (p-1)/2}, it must be half an integer;
 #' if \code{b <= (p-1)/2}, it must be half an integer
-#' \item if \code{Theta1} is the null matrix, \code{a > (p-1)/2} and \code{a}
-#' must be half an integer if \code{a < p-1/2};
+#' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2};
 #' if \code{b <= (p-1)/2}, it must be half an integer
-#' \item if \code{Theta2} is the null matrix, \code{b > (p-1)/2} and \code{b}
-#' must be half an integer if \code{b < p-1/2};
+#' \item if \code{Theta2} is not the null matrix, \code{b > (p-1)/2};
 #' if \code{a <= (p-1)/2}, it must be half an integer}
 #'
 #' @note The matrix variate Beta distribution is usually defined only for
@@ -59,28 +74,14 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=2){
     if(2*a+2*b <= p-1){
       stop("`a` and `b` must satisfy `a+b > (p-1)/2`")
     }
-    W1root <- rwishart_chol_I(n, 2*a, p)
+    W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p)
-    out <- array(NA_real_, dim=c(p,p,n))
-    for(i in 1:n){
-      out[,,i] <- W1root[,,i] %*%
-        chol2inv(chol(tcrossprod(W1root[,,i]) + W2[,,i])) %*% t(W1root[,,i])
-    }
-    return(out)
   }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
-    W2 <- rwishart_I(n, 2*b, p, Theta2)
-    if(def==2){
-      W1root <- rwishart_chol_I(n, 2*a, p)
-      out <- array(NA_real_, dim=c(p,p,n))
-      for(i in 1:n){
-        out[,,i] <- W1root[,,i] %*%
-          chol2inv(chol(tcrossprod(W1root[,,i]) + W2[,,i])) %*% t(W1root[,,i])
-      }
-    }
     W1 <- rwishart_I(n, 2*a, p)
+    W2 <- rwishart_I(n, 2*b, p, Theta2)
   }else{
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
@@ -93,8 +94,8 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=2){
     }
   }else{
     for(i in 1:n){
-      A <- chol(W1[,,i])
-      out[,,i] <- A %*% chol2inv(chol(W1[,,i] + W2[,,i])) %*% t(A)
+      A <- matrixroot(W1[,,i]) # cholesky ne donne pas pareil !!
+      out[,,i] <- t(A) %*% chol2inv(chol(W1[,,i] + W2[,,i])) %*% A
     }
   }
   out
@@ -119,16 +120,29 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=2){
 #' simulations are stacked along the third dimension (see example).
 #' @export
 #'
-#' @details Parameters \code{a} and \code{b} are positive numbers that satisfy the
+#' @details A Beta type II random matrix \eqn{V} is defined as follows.
+#' Take two independent Wishart random matrices
+#' \ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim W_p(2a,I_p,\Theta_1)}}
+#' and
+#' \ifelse{html}{\out{S<sub>2</sub> ~ W<sub>p</sub>(2b,I<sub>p</sub>,&Theta;<sub>2</sub>)}}{\eqn{S_2 \sim W_p(2b,I_p,\Theta_2)}}.
+#' \itemize{
+#' \item \strong{definition 1}:
+#' \ifelse{html}{\out{V = S<sub>2</sub><sup>-&frac12;</sup>S<sub>1</sub>S<sub>2</sub><sup>-&frac12;</sup>}}{\eqn{V = S_2^{-\frac12}S_1S_2^{-\frac12}}}
+#' \item \strong{definition 2}:
+#' \ifelse{html}{\out{V = S<sub>1</sub><sup>&frac12;</sup>S<sub>2</sub><sup>-1</sup>S<sub>1</sub><sup>&frac12;</sup>}}{\eqn{V = S_1^\frac12 S_2^{-1}S_1^\frac12}}
+#' }
+#' In the central case, the two definitions yield the same distribution.
+#' Under definition 2, the Beta type II distribution is related to the Beta
+#' distribution by
+#' \ifelse{html}{\out{V ~ U(I-U)<sup>-1</sup>}}{\eqn{V \sim U{(I-U)}^{-1}}}.
+#'
+#' Parameters \code{a} and \code{b} are positive numbers that satisfy the
 #' following constraints:
 #' \itemize{
 #' \item in any case, \code{b > (p-1)/2}
 #' \item if \code{Theta1} is the null matrix and \code{a <= (p-1)/2}, then
 #' \code{a} must be half an integer
-#' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2} and
-#' \code{a} must be half an integer if \code{a < p-1/2}
-#' \item if \code{Theta2} is not the null matrix,
-#' \code{b} must be half an integer if \code{b < p-1/2}}
+#' \item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2}}
 #'
 #' @note The matrix variate Beta distribution of type II is usually defined only for
 #' \eqn{a > (p-1)/2} and \eqn{b > (p-1)/2}. In this case, a random matrix \eqn{V}
@@ -157,9 +171,24 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
   }
   if(isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
     W1 <- rwishart_I(n, 2*a, p)
-    W2 <- rwishart_I(n, 2*b, p)
+    W2root <- rwishart_chol_I(n, 2*b, p)
+    out <- array(NA_real_, dim=c(p,p,n))
+    for(i in 1:n){
+      W1root <- matrixroot(W1[,,i])
+      out[,,i] <- W1root %*% chol2inv(t(W2root[,,i])) %*% W1root
+    }
+    return(out)
   }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
     W1 <- rwishart_I(n, 2*a, p, Theta1)
+    if(def==2){
+      W2root <- rwishart_chol_I(n, 2*b, p)
+      out <- array(NA_real_, dim=c(p,p,n))
+      for(i in 1:n){
+        W1root <- matrixroot(W1[,,i])
+        out[,,i] <- W1root %*% chol2inv(t(W2root[,,i])) %*% W1root
+      }
+      return(out)
+    }
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
     W1 <- rwishart_I(n, 2*a, p)
@@ -176,8 +205,8 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
     }
   }else{
     for(i in 1:n){
-      A <- matrixroot(W1[,,i]) # con dans le cas Theta1=0
-      out[,,i] <- A %*% chol2inv(chol(W2[,,i])) %*% A # con dans le cas Theta2=0
+      A <- matrixroot(W1[,,i])
+      out[,,i] <- A %*% chol2inv(chol(W2[,,i])) %*% A
     }
   }
   out

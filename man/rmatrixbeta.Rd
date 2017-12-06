@@ -4,7 +4,7 @@
 \alias{rmatrixbeta}
 \title{Matrix Beta sampler}
 \usage{
-rmatrixbeta(n, p, a, b, Theta1 = NULL, Theta2 = NULL)
+rmatrixbeta(n, p, a, b, Theta1 = NULL, Theta2 = NULL, def = 2)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
@@ -21,6 +21,8 @@ equivalent to setting it to the zero matrix}
 \item{Theta2}{denominator noncentrality parameter, a positive semidefinite real
 matrix of order \code{p}; setting it to \code{NULL} (default) is
 equivalent to setting it to the zero matrix}
+
+\item{def}{\code{1}, \code{2} or \code{3}, the definition used; see Details}
 }
 \value{
 A numeric three-dimensional array;
@@ -30,17 +32,31 @@ simulations are stacked along the third dimension (see example).
 Samples a matrix Beta distribution.
 }
 \details{
+A Beta random matrix \eqn{U} is defined as follows.
+Take two independent Wishart random matrices
+\ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim W_p(2a,I_p,\Theta_1)}}
+and
+\ifelse{html}{\out{S<sub>2</sub> ~ W<sub>p</sub>(2b,I<sub>p</sub>,&Theta;<sub>2</sub>)}}{\eqn{S_2 \sim W_p(2b,I_p,\Theta_2)}}.
+\itemize{
+\item \strong{definition 1}:
+\ifelse{html}{\out{U = (S<sub>1</sub>+S<sub>2</sub>)<sup>-&frac12;</sup>S<sub>1</sub>(S<sub>1</sub>+S<sub>2</sub>)<sup>-&frac12;</sup>}}{\eqn{U = {(S_1+S_2)}^{-\frac12}S_1{(S_1+S_2)}^{-\frac12}}}
+\item \strong{definition 2}:
+\ifelse{html}{\out{U = S<sub>1</sub><sup>&frac12;</sup>(S<sub>1</sub>+S<sub>2</sub>)<sup>-1</sup>S<sub>1</sub><sup>&frac12;</sup>}}{\eqn{U=S_1^\frac12{(S_1+S_2)}^{-1}S_1^\frac12}}
+}
+In the central case, the two definitions yield the same distribution.
+Under definition 2, the Beta distribution is related to the Beta type II
+distribution by
+\ifelse{html}{\out{U ~ V(I+V)<sup>-1</sup>}}{\eqn{U \sim V{(I+V)}^{-1}}}.
+
 Parameters \code{a} and \code{b} are positive numbers that satisfy the
 following constraints:
 \itemize{
 \item if both \code{Theta1} and \code{Theta2} are the null matrix,
 \code{a+b > (p-1)/2}; if \code{a <= (p-1)/2}, it must be half an integer;
 if \code{b <= (p-1)/2}, it must be half an integer
-\item if \code{Theta1} is the null matrix, \code{a > (p-1)/2} and \code{a}
-must be half an integer if \code{a < p-1/2};
+\item if \code{Theta1} is not the null matrix, \code{a > (p-1)/2};
 if \code{b <= (p-1)/2}, it must be half an integer
-\item if \code{Theta2} is the null matrix, \code{b > (p-1)/2} and \code{b}
-must be half an integer if \code{b < p-1/2};
+\item if \code{Theta2} is not the null matrix, \code{b > (p-1)/2};
 if \code{a <= (p-1)/2}, it must be half an integer}
 }
 \note{

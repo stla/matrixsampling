@@ -171,6 +171,7 @@ curve(ecdf(betasims)(x), add=TRUE, col="red")
 
 
 #### the two definitions ####
+tr <- function(M) sum(diag(M))
 Phi <- function(sims, z = seq(0.01, 4, length.out = 20)){
   sapply(z,
          function(z) mean(apply(sims, 3, function(x) exp(1i*tr((z*diag(p)+matrix(z,p,p))%*%x)))))
@@ -182,10 +183,10 @@ VtoU <- function(Vsims){
               }), dim=dim(Vsims))
 }
 #
-nsims <- 50000
+nsims <- 30000
 p <- 4
 a <- 2; b <- 2
-Theta <- diag(c(5,5,5,5)) #tcrossprod(1:p)
+Theta <- tcrossprod(1:p)
 U1 <- rmatrixbeta(nsims, p, a, b, def=1, Theta2=Theta)
 V1 <- rmatrixbetaII(nsims, p, a, b, def=1, Theta2=Theta)
 U2 <- rmatrixbeta(nsims, p, a, b, def=2, Theta2=Theta)
@@ -206,6 +207,15 @@ lines(Im(phiV1), col="green", type="o", pch=19)
 lines(Im(phiV2), col="blue", type="o", pch=19)
 curve(ecdf(V1[4,4,])(x), to=quantile(V1[4,4,], 0.8))
 curve(ecdf(V2[4,4,])(x), add=TRUE, col="red")
+
+detU1 <- apply(U1, 3, det)
+detU2 <- apply(U2, 3, det)
+curve(ecdf(detU1)(x), to=quantile(detU1, 0.9))
+curve(ecdf(detU2)(x), add=TRUE, col=2)
+detV1 <- apply(VtoU(V1), 3, det)
+detV2 <- apply(VtoU(V2), 3, det)
+curve(ecdf(detV1)(x), add=TRUE, col="green")
+curve(ecdf(detV2)(x), add=TRUE, col="blue")
 
 # Clsion:
 # noncentral: tout ok
