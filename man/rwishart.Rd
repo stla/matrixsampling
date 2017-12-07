@@ -47,6 +47,10 @@ smaller than \code{epsilon}.
 A sampled Wishart matrix is always positive semidefinite.
 It is positive definite if \code{nu > p-1} and \code{Sigma} is positive
 definite, in theory (see Details).
+
+In the noncentral case, i.e. when \code{Theta} is not null, the Ahdida & Alfonsi
+algorithm is used if \code{nu} is not an integer and \code{p < nu < 2p-1}, or
+if \code{nu = p}. The simulations are slower in this case.
 }
 \examples{
 nu <- 4
@@ -61,4 +65,9 @@ Wsims_det <- apply(rwishart(10000, nu=p-1+0.001, Sigma), 3, det)
 length(which(Wsims_det < .Machine$double.eps))
 Wsims_det <- apply(rwishart(10000, nu=p-1+0.001, Sigma, epsilon=1e-8), 3, det)
 length(which(Wsims_det < .Machine$double.eps))
+}
+\references{
+A. Ahdida & A. Alfonsi. Exact and high-order discretization schemes
+for Wishart processes and their affine extensions.
+\emph{The Annals of Applied Probability} \strong{23}, 2013, 1025-1073.
 }

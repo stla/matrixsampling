@@ -204,6 +204,10 @@ rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
 #' It is positive definite if \code{nu > p-1} and \code{Sigma} is positive
 #' definite, in theory (see Details).
 #'
+#' In the noncentral case, i.e. when \code{Theta} is not null, the Ahdida & Alfonsi
+#' algorithm is used if \code{nu} is not an integer and \code{p < nu < 2p-1}, or
+#' if \code{nu = p}. The simulations are slower in this case.
+#'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
 #' @export
@@ -219,6 +223,10 @@ rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
 #' generate zero values or values close to zero, yielding the non-invertibility
 #' of the sampled matrices. These values are replaced with \code{epsilon} if they are
 #' smaller than \code{epsilon}.
+#'
+#' @references A. Ahdida & A. Alfonsi. Exact and high-order discretization schemes
+#' for Wishart processes and their affine extensions.
+#' \emph{The Annals of Applied Probability} \strong{23}, 2013, 1025-1073.
 #'
 #' @examples
 #' nu <- 4

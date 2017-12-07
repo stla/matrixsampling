@@ -4,7 +4,7 @@
 \alias{rmatrixbeta}
 \title{Matrix Beta sampler}
 \usage{
-rmatrixbeta(n, p, a, b, Theta1 = NULL, Theta2 = NULL, def = 2)
+rmatrixbeta(n, p, a, b, Theta1 = NULL, Theta2 = NULL, def = 1)
 }
 \arguments{
 \item{n}{sample size, a positive integer}

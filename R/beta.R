@@ -56,7 +56,7 @@
 #' @examples
 #' Bsims <- rmatrixbeta(10000, 3, 1, 1)
 #' dim(Bsims) # 3 3 10000
-rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=2){
+rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
   def <- match.arg(as.character(def), choices=1:2)
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
@@ -172,22 +172,30 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
     stop("`b` must satisfy `b > (p-1)/2`")
   }
   if(isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
-    W1 <- rwishart_I(n, 2*a, p)
-    W2root <- rwishart_chol_I(n, 2*b, p)
-    out <- array(NA_real_, dim=c(p,p,n))
-    for(i in 1:n){
-      W1root <- matrixroot(W1[,,i])
-      out[,,i] <- W1root %*% chol2inv(t(W2root[,,i])) %*% W1root
+    #W1 <- rwishart_I(n, 2*a, p)
+    if(def==2){
+      W1root <- rwishart_chol_I(n, 2*a, p)
+      W2root <- rwishart_chol_I(n, 2*b, p)
+      out <- array(NA_real_, dim=c(p,p,n))
+      for(i in 1:n){
+#        W1root <- matrixroot(W1[,,i]) # est-ce que chol marche ici ?
+#        out[,,i] <- W1root %*% chol2inv(t(W2root[,,i])) %*% t(W1root)
+        out[,,i] <- W1root[,,i] %*% chol2inv(t(W2root[,,i])) %*% t(W1root[,,i])
+      }
+      return(out)
     }
-    return(out)
+    W1 <- rwishart_I(n, 2*a, p)
+    W2 <- rwishart_I(n, 2*b, p)
   }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     if(def==2){
       W2root <- rwishart_chol_I(n, 2*b, p)
       out <- array(NA_real_, dim=c(p,p,n))
       for(i in 1:n){
-        W1root <- matrixroot(W1[,,i])
-        out[,,i] <- W1root %*% chol2inv(t(W2root[,,i])) %*% W1root
+        # W1root <- matrixroot(W1[,,i])
+        # out[,,i] <- W1root %*% chol2inv(t(W2root[,,i])) %*% W1root
+        W1root <- chol(W1[,,i])
+        out[,,i] <- t(W1root) %*% chol2inv(t(W2root[,,i])) %*% W1root
       }
       return(out)
     }
