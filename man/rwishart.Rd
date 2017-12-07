@@ -49,8 +49,8 @@ It is positive definite if \code{nu > p-1} and \code{Sigma} is positive
 definite, in theory (see Details).
 
 In the noncentral case, i.e. when \code{Theta} is not null, the Ahdida & Alfonsi
-algorithm is used if \code{nu} is not an integer and \code{p < nu < 2p-1}, or
-if \code{nu = p}. The simulations are slower in this case.
+algorithm is used if \code{nu} is not an integer and \code{p-1 < nu < 2p-1}, or
+if \code{nu = p-1}. The simulations are slower in this case.
 }
 \examples{
 nu <- 4

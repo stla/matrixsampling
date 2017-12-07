@@ -205,8 +205,8 @@ rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
 #' definite, in theory (see Details).
 #'
 #' In the noncentral case, i.e. when \code{Theta} is not null, the Ahdida & Alfonsi
-#' algorithm is used if \code{nu} is not an integer and \code{p < nu < 2p-1}, or
-#' if \code{nu = p}. The simulations are slower in this case.
+#' algorithm is used if \code{nu} is not an integer and \code{p-1 < nu < 2p-1}, or
+#' if \code{nu = p-1}. The simulations are slower in this case.
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
