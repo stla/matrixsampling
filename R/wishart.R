@@ -155,7 +155,7 @@ rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
   }
   for(k in (1L+seq_len(m-1L))){
     p <- 1L:d; p[k] <- 1L; p[1L] <- k
-    Wsims <- Wsims[p,p,]
+    Wsims <- Wsims[p,p,,drop=FALSE] # don't drop if n=1
     for(i in 1L:n){
       ec <- extendedCholesky(Wsims[-1L,-1L,i])
       L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
@@ -347,6 +347,11 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
   }else{
     if(!(p==1 && isScalar(Theta)) && !all(c(p,p)==dim(Theta))){
       stop("`Theta` must have dimension `p x p`")
+    }
+    if(p == 1){
+      W <- array(NA_real_, dim=c(1,1,n))
+      W[1,1,] <- rchisq(n, df=nu, ncp=c(Theta))
+      return(W)
     }
     if(nu < p-1){
       stop(
