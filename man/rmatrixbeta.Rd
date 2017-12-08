@@ -22,7 +22,7 @@ equivalent to setting it to the zero matrix}
 matrix of order \code{p}; setting it to \code{NULL} (default) is
 equivalent to setting it to the zero matrix}
 
-\item{def}{\code{1}, \code{2} or \code{3}, the definition used; see Details}
+\item{def}{\code{1} or \code{2}, the definition used; see Details}
 }
 \value{
 A numeric three-dimensional array;
@@ -52,12 +52,12 @@ Parameters \code{a} and \code{b} are positive numbers that satisfy the
 following constraints:
 \itemize{
 \item if both \code{Theta1} and \code{Theta2} are the null matrix,
-\code{a+b > (p-1)/2}; if \code{a <= (p-1)/2}, it must be half an integer;
-if \code{b <= (p-1)/2}, it must be half an integer
+\code{a+b > (p-1)/2}; if \code{a < (p-1)/2}, it must be half an integer;
+if \code{b < (p-1)/2}, it must be half an integer
 \item if \code{Theta1} is not the null matrix, \code{a >= (p-1)/2};
-if \code{b <= (p-1)/2}, it must be half an integer
+if \code{b < (p-1)/2}, it must be half an integer
 \item if \code{Theta2} is not the null matrix, \code{b >= (p-1)/2};
-if \code{a <= (p-1)/2}, it must be half an integer}
+if \code{a < (p-1)/2}, it must be half an integer}
 }
 \note{
 The matrix variate Beta distribution is usually defined only for

@@ -12,7 +12,7 @@
 #' @param Theta2 denominator noncentrality parameter, a positive semidefinite real
 #' matrix of order \code{p}; setting it to \code{NULL} (default) is
 #' equivalent to setting it to the zero matrix
-#' @param def \code{1}, \code{2} or \code{3}, the definition used; see Details
+#' @param def \code{1} or \code{2}, the definition used; see Details
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
@@ -38,12 +38,12 @@
 #' following constraints:
 #' \itemize{
 #' \item if both \code{Theta1} and \code{Theta2} are the null matrix,
-#' \code{a+b > (p-1)/2}; if \code{a <= (p-1)/2}, it must be half an integer;
-#' if \code{b <= (p-1)/2}, it must be half an integer
+#' \code{a+b > (p-1)/2}; if \code{a < (p-1)/2}, it must be half an integer;
+#' if \code{b < (p-1)/2}, it must be half an integer
 #' \item if \code{Theta1} is not the null matrix, \code{a >= (p-1)/2};
-#' if \code{b <= (p-1)/2}, it must be half an integer
+#' if \code{b < (p-1)/2}, it must be half an integer
 #' \item if \code{Theta2} is not the null matrix, \code{b >= (p-1)/2};
-#' if \code{a <= (p-1)/2}, it must be half an integer}
+#' if \code{a < (p-1)/2}, it must be half an integer}
 #'
 #' @note The matrix variate Beta distribution is usually defined only for
 #' \eqn{a > (p-1)/2} and \eqn{b > (p-1)/2}. In this case, a random matrix \eqn{U}
@@ -74,15 +74,39 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
     if(2*a+2*b <= p-1){
       stop("`a` and `b` must satisfy `a+b > (p-1)/2`")
     }
+    if(2*a < p-1 && floor(2*a) != a){
+      stop("`a < (p-1)/2`, it must be half an integer")
+    }
+    if(2*b < p-1 && floor(2*b) != b){
+      stop("`b < (p-1)/2`, it must be half an integer")
+    }
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(!isNullOrZeroMatrix(Theta1) && isNullOrZeroMatrix(Theta2)){
+    if(2*a < p-1){
+      stop("`a` must be greater than `(p-1)/2`")
+    }
+    if(2*b < p-1 && floor(2*b) != b){
+      stop("`b < (p-1)/2`, it must be half an integer")
+    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
+    if(2*a < p-1 && floor(2*a) != a){
+      stop("`a < (p-1)/2`, it must be half an integer")
+    }
+    if(2*b < p-1){
+      stop("`b` must be greater than `(p-1)/2`")
+    }
     W1 <- rwishart_I(n, 2*a, p)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }else{
+    if(2*a < p-1){
+      stop("`a` must be greater than `(p-1)/2`")
+    }
+    if(2*b < p-1){
+      stop("`b` must be greater than `(p-1)/2`")
+    }
     W1 <- rwishart_I(n, 2*a, p, Theta1)
     W2 <- rwishart_I(n, 2*b, p, Theta2)
   }
@@ -94,8 +118,8 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
     }
   }else{
     for(i in 1:n){
-      A <- matrixroot(W1[,,i]) # cholesky ne donne pas pareil !!
-      out[,,i] <- t(A) %*% chol2inv(chol(W1[,,i] + W2[,,i])) %*% A
+      A <- matrixroot(W1[,,i]) # not cholesky
+      out[,,i] <- A %*% chol2inv(chol(W1[,,i] + W2[,,i])) %*% A
     }
   }
   out

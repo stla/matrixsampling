@@ -205,6 +205,8 @@ rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
 #' equivalent to setting it to the zero matrix
 #' @param epsilon a number involved in the algorithm only if it positive; its role
 #' is to guarantee the invertibility of the sampled matrices; see Details
+#' @param checkSymmetry logical, whether to check the symmetry of \code{Sigma}
+#' and \code{Theta}
 #'
 #' @note A sampled Wishart matrix is always positive semidefinite.
 #' It is positive definite if \code{nu > p-1} and \code{Sigma} is positive
@@ -247,7 +249,7 @@ rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
 #' length(which(Wsims_det < .Machine$double.eps))
 #' Wsims_det <- apply(rwishart(10000, nu=p-1+0.001, Sigma, epsilon=1e-8), 3, det)
 #' length(which(Wsims_det < .Machine$double.eps))
-rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
+rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0, checkSymmetry=TRUE){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
@@ -256,7 +258,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
   }
   p <- ifelse(isScalar(Sigma), 1L, nrow(Sigma))
   if(isNullOrZeroMatrix(Theta)){
-    Sigma_root <- matrixroot(Sigma)
+    Sigma_root <- matrixroot(Sigma, symmetric=!checkSymmetry)
     if(nu > p-1){
       R <- rwishart_root(n, nu, Sigma_root=Sigma_root, check=FALSE, epsilon=epsilon)
       out <- array(NA_real_, dim=dim(R))
@@ -268,8 +270,9 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
         stop(sprintf("`nu` (%s) must be an integer when it is lower than `p-1` (%s)", nu, p-1))
       }
       out <- array(NA_real_, dim=c(p,p,n))
+      Z <- array(rnorm(p*nu*n), dim=c(p,nu,n))
       for(i in 1:n){
-        out[,,i] <- tcrossprod(Sigma_root %*% matrix(rnorm(nu*p), p, nu))
+        out[,,i] <- tcrossprod(Sigma_root %*% Z[,,i])
       }
     }
     return(out)
@@ -289,8 +292,8 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
     }
     W <- array(NA_real_, dim=c(p,p,n))
     if(nu > 2*p-1){
-      Sigma_root <- matrixroot(Sigma)
-      Theta_root <- matrixroot(Theta, matrixname = "Theta")
+      Sigma_root <- matrixroot(Sigma, symmetric=!checkSymmetry)
+      Theta_root <- matrixroot(Theta, matrixname = "Theta", symmetric=!checkSymmetry)
       WrootI <- rwishart_chol_I(n, nu-p, p, epsilon)
       Z <- array(rnorm(p*p*n), dim=c(p,p,n))
       for(i in 1:n){
@@ -299,8 +302,8 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
           tcrossprod(Sigma_root %*% WrootI[,,i])
       }
     }else if(floor(nu) == nu && nu != p-1){ # nu is an integer >= p
-      Sigma_root <- matrixroot(Sigma)
-      Theta_root <- matrixroot(Theta, matrixname = "Theta")
+      Sigma_root <- matrixroot(Sigma, symmetric=!checkSymmetry)
+      Theta_root <- matrixroot(Theta, matrixname = "Theta", symmetric=!checkSymmetry)
       if(nu != p){
         Z <- array(rnorm(p*p*n), dim=c(p,p,n))
         Y <- array(rnorm(p*(nu-p)*n), dim=c(p,nu-p,n))

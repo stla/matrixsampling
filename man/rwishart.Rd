@@ -4,7 +4,7 @@
 \alias{rwishart}
 \title{Wishart sampler}
 \usage{
-rwishart(n, nu, Sigma, Theta = NULL, epsilon = 0)
+rwishart(n, nu, Sigma, Theta = NULL, epsilon = 0, checkSymmetry = TRUE)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
@@ -23,6 +23,9 @@ equivalent to setting it to the zero matrix}
 
 \item{epsilon}{a number involved in the algorithm only if it positive; its role
 is to guarantee the invertibility of the sampled matrices; see Details}
+
+\item{checkSymmetry}{logical, whether to check the symmetry of \code{Sigma}
+and \code{Theta}}
 }
 \value{
 A numeric three-dimensional array;
