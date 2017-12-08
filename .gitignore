@@ -3,3 +3,6 @@
 .RData
 .Ruserdata
 matrixsampling.pdf
+inst/Checks.html
+inst/BetaMatrix.html
+inst/AA.html

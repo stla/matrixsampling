@@ -13,3 +13,5 @@
 ^inst/checks_wishart_chol\.R$
 ^inst/Checks\.Rmd$
 ^inst/Checks\.html$
+^inst/AA\.Rmd$
+^inst/AA\.html$

@@ -20,9 +20,9 @@
 #'
 #' @details A Beta random matrix \eqn{U} is defined as follows.
 #' Take two independent Wishart random matrices
-#' \ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim W_p(2a,I_p,\Theta_1)}}
+#' \ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim \mathcal{W}_p(2a,I_p,\Theta_1)}}
 #' and
-#' \ifelse{html}{\out{S<sub>2</sub> ~ W<sub>p</sub>(2b,I<sub>p</sub>,&Theta;<sub>2</sub>)}}{\eqn{S_2 \sim W_p(2b,I_p,\Theta_2)}}.
+#' \ifelse{html}{\out{S<sub>2</sub> ~ W<sub>p</sub>(2b,I<sub>p</sub>,&Theta;<sub>2</sub>)}}{\eqn{S_2 \sim \mathcal{W}_p(2b,I_p,\Theta_2)}}.
 #' \itemize{
 #' \item \strong{definition 1}:
 #' \ifelse{html}{\out{U = (S<sub>1</sub>+S<sub>2</sub>)<sup>-&frac12;</sup>S<sub>1</sub>(S<sub>1</sub>+S<sub>2</sub>)<sup>-&frac12;</sup>}}{\eqn{U = {(S_1+S_2)}^{-\frac12}S_1{(S_1+S_2)}^{-\frac12}}}
@@ -147,9 +147,9 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
 #'
 #' @details A Beta type II random matrix \eqn{V} is defined as follows.
 #' Take two independent Wishart random matrices
-#' \ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim W_p(2a,I_p,\Theta_1)}}
+#' \ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim \mathcal{W}_p(2a,I_p,\Theta_1)}}
 #' and
-#' \ifelse{html}{\out{S<sub>2</sub> ~ W<sub>p</sub>(2b,I<sub>p</sub>,&Theta;<sub>2</sub>)}}{\eqn{S_2 \sim W_p(2b,I_p,\Theta_2)}}.
+#' \ifelse{html}{\out{S<sub>2</sub> ~ W<sub>p</sub>(2b,I<sub>p</sub>,&Theta;<sub>2</sub>)}}{\eqn{S_2 \sim \mathcal{W}_p(2b,I_p,\Theta_2)}}.
 #' \itemize{
 #' \item \strong{definition 1}:
 #' \ifelse{html}{\out{V = S<sub>2</sub><sup>-&frac12;</sup>S<sub>1</sub>S<sub>2</sub><sup>-&frac12;</sup>}}{\eqn{V = S_2^{-\frac12}S_1S_2^{-\frac12}}}
