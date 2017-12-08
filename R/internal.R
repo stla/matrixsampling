@@ -18,8 +18,8 @@ isSquareRealMatrix <- function(M){
   (isScalar(M) || (is.matrix(M) && (nrow(M) == ncol(M)))) && is.numeric(M)
 }
 
-isSymmetricPositive <- function(Sigma, matrixname="Sigma"){
-  if(!isSymmetricMatrix(Sigma)){
+isSymmetricPositive <- function(Sigma, matrixname="Sigma", symmetric=FALSE){
+  if(!symmetric && !isSymmetricMatrix(Sigma)){
     stop(sprintf("`%s` must be a symmetric positive matrix - it is not symmetric",
                  matrixname), call. = FALSE)
   }

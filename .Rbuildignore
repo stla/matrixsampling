@@ -11,3 +11,5 @@
 ^TODO\.txt$
 ^matrixsampling\.pdf$
 ^inst/checks_wishart_chol\.R$
+^inst/Checks\.Rmd$
+^inst/Checks\.html$

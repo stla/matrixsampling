@@ -43,5 +43,6 @@ rmatrixnormal <- function(n, M, U, V, checkSymmetry=TRUE){
   for(i in 1:n){
     out[,,i] <- M + Uroot %*% Z[,,i] %*% Vroot
   }
+  out
 }
 

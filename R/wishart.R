@@ -293,7 +293,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0, checkSymmetry=TRUE){
     W <- array(NA_real_, dim=c(p,p,n))
     if(nu > 2*p-1){
       Sigma_root <- matrixroot(Sigma, symmetric=!checkSymmetry)
-      Theta_root <- matrixroot(Theta, matrixname = "Theta", symmetric=!checkSymmetry)
+      Theta_root <- matrixroot(Theta, matrixname="Theta", symmetric=!checkSymmetry)
       WrootI <- rwishart_chol_I(n, nu-p, p, epsilon)
       Z <- array(rnorm(p*p*n), dim=c(p,p,n))
       for(i in 1:n){
@@ -303,7 +303,7 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0, checkSymmetry=TRUE){
       }
     }else if(floor(nu) == nu && nu != p-1){ # nu is an integer >= p
       Sigma_root <- matrixroot(Sigma, symmetric=!checkSymmetry)
-      Theta_root <- matrixroot(Theta, matrixname = "Theta", symmetric=!checkSymmetry)
+      Theta_root <- matrixroot(Theta, matrixname="Theta", symmetric=!checkSymmetry)
       if(nu != p){
         Z <- array(rnorm(p*p*n), dim=c(p,p,n))
         Y <- array(rnorm(p*(nu-p)*n), dim=c(p,nu-p,n))
@@ -319,14 +319,15 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0, checkSymmetry=TRUE){
         }
       }
     }else{ # nu is not an integer or nu = p-1
-      invisible(isSymmetricPositive(Sigma) && isSymmetricPositive(Theta))
+      invisible(isSymmetricPositive(Sigma, symmetric=!checkSymmetry) &&
+                  isSymmetricPositive(Theta, matrixname="Theta", symmetric=!checkSymmetry))
       W <- rwishart_AA(n, nu, Sigma, Theta, epsilon)
     }
     return(W)
   }
 }
 
-rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
+rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0, checkSymmetry=TRUE){
   # samples W(nu, Ip, Theta)
   if(is.null(Theta)){
     if(nu > p-1){
@@ -343,7 +344,7 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
       Y <- matrix(rnorm(p*(p-1)/2*n), p*(p-1)/2, n)
       for(i in 1:n){
         diag(Z) <- chisims[,i]
-        Z[lowertri] <- Y[,,i]
+        Z[lowertri] <- Y[,i]
         out[,,i] <- tcrossprod(Z)
       }
     }else{
@@ -373,7 +374,7 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
     }
     W <- array(NA_real_, dim=c(p,p,n))
     if(nu > 2*p-1){
-      Theta_root <- matrixroot(Theta, matrixname = "Theta")
+      Theta_root <- matrixroot(Theta, matrixname="Theta", symmetric=!checkSymmetry)
       WrootI <- rwishart_chol_I(n, nu-p, p, epsilon)
       Z <- array(rnorm(p*p*n), dim=c(p,p,n))
       for(i in 1:n){
@@ -381,7 +382,7 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
           tcrossprod(WrootI[,,i])
       }
     }else if(floor(nu) == nu && nu != p-1){ # nu is an integer >= p
-      Theta_root <- matrixroot(Theta, matrixname = "Theta")
+      Theta_root <- matrixroot(Theta, matrixname="Theta", symmetric=!checkSymmetry)
       if(nu != p){
         Z <- array(rnorm(p*p*n), dim=c(p,p,n))
         Y <- array(rnorm(p*(nu-p)*n), dim=c(p,nu-p,n))
@@ -396,7 +397,7 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
         }
       }
     }else{ # nu is not an integer or nu = p-1
-      invisible(isSymmetricPositive(Theta))
+      invisible(isSymmetricPositive(Theta, matrixname="Theta", symmetric=!checkSymmetry))
       W <- rwishart_AA_Im(n, nu, p, Theta, epsilon)
     }
     return(W)

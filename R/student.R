@@ -45,7 +45,7 @@ rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
   if(m != nrow(M) || p != ncol(M)){
     stop("Incorrect dimensions")
   }
-  IW <- rinvwishart(n, nu+m-1, U)
+  IW <- rinvwishart(n, nu+m-1, U, checkSymmetry=checkSymmetry)
   out <- array(NA_real_, dim=c(m,p,n))
   Z <- array(rnorm(m*p*n), dim=c(m,p,n))
   for(i in 1:n){
