@@ -1,0 +1,256 @@
+---
+title: "Checks matrixsampling"
+author: "Stéphane Laurent"
+date: "8 décembre 2017"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Wishart central
+
+```{r}
+phiW <- function(nu, Sigma, z = seq(0.01, 4, length.out = 20)){
+  p <- nrow(Sigma)
+  sapply(z, 
+         function(z) complexplus::Det(diag(p) - 2*1i*(z*diag(p)+matrix(z,p,p))%*%Sigma)^(-nu/2)) 
+}
+```
+
+```{r}
+tr <- function(x) sum(diag(x))
+Phi <- function(sims, z = seq(0.01, 4, length.out = 20)){
+  sapply(z,
+         function(z) mean(apply(sims, 3,
+                                function(x) exp(1i*tr((z*diag(p)+matrix(z,p,p))%*%x)))))
+}
+```
+
+```{r}
+nsims <- 30000
+p <- 3
+Sigma <- toeplitz(p:1)/100
+# nu > p-1
+nu <- p-1 + 3
+W <- rwishart(nsims, nu, Sigma)
+phisims <- Phi(W)
+plot(Re(phiW(nu, Sigma)), type="o", pch=19)
+lines(Re(phisims), type="o", col="red", pch=19)
+plot(Im(phiW(nu, Sigma)), type="o", pch=19)
+lines(Im(phisims), type="o", col="red", pch=19)
+# nu integer <p
+nu <- p-2
+W <- rwishart(nsims, nu, Sigma)
+phisims <- Phi(W)
+plot(Re(phiW(nu, Sigma)), type="o", pch=19)
+lines(Re(phisims), type="o", col="red", pch=19)
+plot(Im(phiW(nu, Sigma)), type="o", pch=19)
+lines(Im(phisims), type="o", col="red", pch=19)
+```
+
+# Wishart noncentral
+
+```{r}
+phiW <- function(nu, Sigma, Theta, z = seq(0.01, 4, length.out = 20)){
+  p <- nrow(Sigma)
+  sapply(z, 
+         function(z){
+           complexplus::Det(diag(p) - 2*1i*(z*diag(p)+matrix(z,p,p))%*%Sigma)^(-nu/2) * 
+             exp(1i*tr(solve(diag(p) - 2*1i*(z*diag(p)+matrix(z,p,p))%*%Sigma) %*% (z*diag(p)+matrix(z,p,p)) %*% Theta))
+         })
+}
+```
+
+```{r}
+nsims <- 30000
+p <- 3
+Sigma <- toeplitz(p:1)/100
+Theta <- matrix(0.1, p, p)
+# nu > 2*p-1
+nu <- 2*p-1 + 3
+W <- rwishart(nsims, nu, Sigma, Theta)
+phisims <- Phi(W)
+plot(Re(phiW(nu, Sigma, Theta)), type="o", pch=19)
+lines(Re(phisims), type="o", col="red", pch=19)
+plot(Im(phiW(nu, Sigma, Theta)), type="o", pch=19)
+lines(Im(phisims), type="o", col="red", pch=19)
+# nu <= 2*p-1 integer
+nu <- p+1
+W <- rwishart(nsims, nu, Sigma, Theta)
+phisims <- Phi(W)
+plot(Re(phiW(nu, Sigma, Theta)), type="o", pch=19)
+lines(Re(phisims), type="o", col="red", pch=19)
+plot(Im(phiW(nu, Sigma, Theta)), type="o", pch=19)
+lines(Im(phisims), type="o", col="red", pch=19)
+# nu < 2*p-1 noninteger
+nu <- p+0.5
+W <- rwishart(nsims, nu, Sigma, Theta)
+phisims <- Phi(W)
+plot(Re(phiW(nu, Sigma, Theta)), type="o", pch=19)
+lines(Re(phisims), type="o", col="red", pch=19)
+plot(Im(phiW(nu, Sigma, Theta)), type="o", pch=19)
+lines(Im(phisims), type="o", col="red", pch=19)
+# nu = p-1
+nu <- p-1
+W <- rwishart(nsims, nu, Sigma, Theta)
+phisims <- Phi(W)
+plot(Re(phiW(nu, Sigma, Theta)), type="o", pch=19)
+lines(Re(phisims), type="o", col="red", pch=19)
+plot(Im(phiW(nu, Sigma, Theta)), type="o", pch=19)
+lines(Im(phisims), type="o", col="red", pch=19)
+```
+
+# Beta central
+
+```{r}
+rU <- function(nsims, p, e, h, theta=0){
+  betasims <- rbeta(nsims, e/2, h/2, ncp=theta)
+  for(i in seq_len(p-1)){
+    betasims <- betasims * rbeta(nsims, (e-i)/2, h/2)
+  }
+  betasims
+}
+rUprime <- function(nsims, p, e, h){
+  betasims <- brr::rbeta2(nsims, e/2, h/2, scale=1)
+  for(i in seq_len(p-1)){
+    betasims <- betasims * brr::rbeta2(nsims, (e-i)/2, (h-i)/2, scale=1)
+  }
+  betasims
+}
+```
+
+```{r}
+# Beta I
+p <- 3
+a <- 2; b <- 2
+detsims <- apply(rmatrixbeta(nsims, p, a, b), 3, det)
+curve(ecdf(detsims)(x), to=quantile(detsims, 0.8))
+betasims <- rU(nsims, p, 2*a, 2*b)
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+# Beta II
+detsims <- apply(rmatrixbetaII(nsims, p, a, b), 3, det)
+curve(ecdf(detsims)(x), to=quantile(detsims, 0.8))
+betasims <- rUprime(nsims, p, 2*a, 2*b)
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+```
+
+
+# Beta I noncentral rank one
+
+```{r}
+theta <- 2
+detsims <- apply(rmatrixbeta(nsims, p, a, b, Theta1 = diag(c(theta, rep(0,p-1)))), 3, det)
+curve(ecdf(detsims)(x), to=quantile(detsims, 0.8))
+betasims <- rU(nsims, p, 2*a, 2*b, theta)
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+```
+
+```{r}
+# check p=1
+Theta <- 1
+sims <- rmatrixbeta(nsims, 1, a, b, Theta1=Theta)[1,1,]
+curve(ecdf(sims)(x))
+curve(pbeta(x, a, b, ncp=Theta), add=TRUE, col="red")
+#
+sims <- rmatrixbeta(nsims, 1, a, b, Theta2=Theta)[1,1,]
+curve(1-pbeta(1-x, b, a, ncp=Theta), add=TRUE, col="blue")
+```
+
+
+# Beta - the two definitions
+
+```{r}
+Phi <- function(sims, z = seq(0.01, 4, length.out = 20)){
+  sapply(z,
+         function(z) mean(apply(sims, 3,
+                                function(x) exp(1i*tr((z*diag(p)+matrix(z,p,p))%*%x)))))
+}
+VtoU <- function(Vsims){
+  array(apply(Vsims, 3,
+              function(V){
+                chol2inv(chol(diag(p)+V))%*%V
+              }), dim=dim(Vsims))
+}
+p <- 3
+Theta1 <- diag(p) 
+Theta2 <- 3*diag(p) 
+U1 <- rmatrixbeta(nsims, p, a, b, def=1, Theta1=Theta1, Theta2=Theta2)
+V1 <- rmatrixbetaII(nsims, p, a, b, def=1,Theta1=Theta1, Theta2=Theta2)
+U2 <- rmatrixbeta(nsims, p, a, b, def=2, Theta1=Theta1, Theta2=Theta2)
+V2 <- rmatrixbetaII(nsims, p, a, b, def=2, Theta1=Theta1, Theta2=Theta2)
+phiU1 <- Phi(U1)
+phiU2 <- Phi(U2)
+phiV1 <- Phi(VtoU(V1))
+phiV2 <- Phi(VtoU(V2))
+plot(Re(phiU1), type="o", pch=19)
+lines(Re(phiU2), col="red", type="o", pch=19)
+lines(Re(phiV1), col="green", type="o", pch=19)
+lines(Re(phiV2), col="blue", type="o", pch=19)
+plot(Im(phiU1), type="o", pch=19)
+lines(Im(phiU2), col="red", type="o", pch=19)
+lines(Im(phiV1), col="green", type="o", pch=19)
+lines(Im(phiV2), col="blue", type="o", pch=19)
+```
+
+
+# Student 
+
+```{r}
+# Beta II by conditional approach
+nsims <- 60000
+p <- 5
+a <- (p-1)/2+0.501; b <- (p-1)/2+0.501
+p2 <- 2; p1 <- p-p2
+V11 <- rmatrixbetaII(nsims, p1, a, b-p2/2)
+V221 <- rmatrixbetaII(nsims, p2, a-p1/2, b)
+V <- array(NA_real_, dim=c(p,p,nsims))
+for(i in 1:nsims){
+  V21 <-
+    matrix(rmatrixt(1, 2*a+2*b-p+1, matrix(0, p2, p1),
+                    diag(p2)+V221[,,i],
+                    V11[,,i]*(diag(p1)+V11[,,i]), checkSymmetry = FALSE)[,,1], p2, p1)
+  V22 <- V221[,,i] + V21%*%chol2inv(chol(V11[,,i]))%*%t(V21)
+  V[,,i] <- cbind(rbind(V11[,,i], V21), rbind(t(V21), V22))
+}
+
+detsims <- apply(V, 3, det)
+betasims <- rUprime(nsims, p, 2*a, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.3), to=quantile(detsims, 0.7))
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+```
+
+# Inverted t
+
+```{r}
+# thm 5.2.3 Gupta & Nagar
+nsims <- 130000
+p <- 3; n1 <- 5; n2 <- 4
+Sigma <- toeplitz(p:1)/100
+X <- rmatrixnormal(nsims, matrix(0, p, n1), Sigma, diag(n1))
+S2 <- rwishart(nsims, n2, Sigma)
+Z <- array(NA_real_, dim=c(p,n1,nsims))
+for(i in 1:nsims){
+  Z[,,i] <- matrixsampling:::invsqrtm(S2[,,i]+tcrossprod(X[,,i]))%*%X[,,i]
+}
+IT <- rmatrixit(nsims, n2-p+1, matrix(0, p, n1), diag(p), diag(n1))
+Phi <- function(sims, z = seq(0.01, 4, length.out = 20)){
+  sapply(z,
+         function(z) mean(apply(sims, 3,
+                                function(x) exp(-1i*sum(rep(z, p*n1)*c(t(x)))))))
+}
+PhiZ <- Phi(Z)
+PhiIT <- Phi(IT)
+plot(Re(PhiZ), type="o", pch=19)
+lines(Re(PhiIT), type="o", pch=19, col="red")
+plot(Im(PhiZ), type="o", pch=19) ## bizarre !
+lines(Im(PhiIT), type="o", pch=19, col="red")
+round(apply(Z, 1:2, var), 2)
+round(apply(IT, 1:2, var), 2)
+curve(ecdf(Z[1,1,]+Z[1,2,]+Z[3,3,]+Z[3,5,]^2)(x), from=-1.5, to=1.5)
+curve(ecdf(IT[1,1,]+IT[1,2,]+IT[3,3,]+IT[3,5,]^2)(x), add=TRUE, col="red")
+```
+
