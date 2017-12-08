@@ -9,6 +9,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE)
+library(matrixsampling)
 ```
 
 # Wishart central
@@ -124,6 +125,7 @@ rUprime <- function(nsims, p, e, h){
 ```
 
 ```{r}
+nsims <- 40000
 # Beta I
 p <- 3
 a <- 2; b <- 2
@@ -157,6 +159,7 @@ curve(ecdf(sims)(x))
 curve(pbeta(x, a, b, ncp=Theta), add=TRUE, col="red")
 #
 sims <- rmatrixbeta(nsims, 1, a, b, Theta2=Theta)[1,1,]
+curve(ecdf(sims)(x))
 curve(1-pbeta(1-x, b, a, ncp=Theta), add=TRUE, col="blue")
 ```
 
@@ -175,7 +178,8 @@ VtoU <- function(Vsims){
                 chol2inv(chol(diag(p)+V))%*%V
               }), dim=dim(Vsims))
 }
-p <- 3
+p <- 5
+a <- 3; b <- 3
 Theta1 <- diag(p) 
 Theta2 <- 3*diag(p) 
 U1 <- rmatrixbeta(nsims, p, a, b, def=1, Theta1=Theta1, Theta2=Theta2)
@@ -200,20 +204,46 @@ lines(Im(phiV2), col="blue", type="o", pch=19)
 # Student 
 
 ```{r}
+nsims <- 30000
+nu <- 6 
+p <- 2; m <- 3
+M <- matrix(0, p, m)
+U <- toeplitz(p:1)
+V <- toeplitz(m:1) 
+Vinv <- solve(V) 
+Uroot <- matrixsampling:::matrixroot(U)
+Urootinv <- solve(Uroot)
+Tsims <- rmatrixt(nsims, nu, M, U, V)
+Bsims <- rmatrixbeta(nsims, p, (nu + p - 1)/2, m/2)
+BIIsims <- rmatrixbetaII(nsims, p, m/2, (nu + p - 1)/2)
+sims1 <- sims2 <- array(NA_real_, dim=c(p,p,nsims))
+for(i in 1:nsims){
+  sims1[,,i] <- Uroot %*% solve(U + Tsims[,,i] %*% Vinv %*% t(Tsims[,,i])) %*% Uroot
+  sims2[,,i] <- Urootinv %*% Tsims[,,i] %*% Vinv %*% t(Tsims[,,i]) %*% Urootinv
+}
+curve(ecdf(apply(Bsims, 3, sum))(x), to=2)
+curve(ecdf(apply(sims1, 3, sum))(x), add=TRUE, col="red")
+curve(ecdf(apply(BIIsims, 3, sum))(x), to=2)
+curve(ecdf(apply(sims2, 3, sum))(x), add=TRUE, col="red")
+```
+
+
+```{r, betaIIconditional}
 # Beta II by conditional approach
 nsims <- 60000
-p <- 5
-a <- (p-1)/2+0.501; b <- (p-1)/2+0.501
-p2 <- 2; p1 <- p-p2
+p <- 6
+a <- (p-1)/2+4; b <- (p-1)/2+4
+p2 <- 4; p1 <- p-p2
 V11 <- rmatrixbetaII(nsims, p1, a, b-p2/2)
 V221 <- rmatrixbetaII(nsims, p2, a-p1/2, b)
 V <- array(NA_real_, dim=c(p,p,nsims))
+V22sims <- array(NA_real_, dim=c(p2,p2,nsims))
 for(i in 1:nsims){
   V21 <-
     matrix(rmatrixt(1, 2*a+2*b-p+1, matrix(0, p2, p1),
                     diag(p2)+V221[,,i],
                     V11[,,i]*(diag(p1)+V11[,,i]), checkSymmetry = FALSE)[,,1], p2, p1)
-  V22 <- V221[,,i] + V21%*%chol2inv(chol(V11[,,i]))%*%t(V21)
+  V22 <- V22sims[,,i] <- V221[,,i] + V21%*%chol2inv(chol(V11[,,i]))%*%t(V21)
   V[,,i] <- cbind(rbind(V11[,,i], V21), rbind(t(V21), V22))
 }
 
@@ -221,13 +251,58 @@ detsims <- apply(V, 3, det)
 betasims <- rUprime(nsims, p, 2*a, 2*b)
 curve(ecdf(detsims)(x), from=quantile(detsims, 0.3), to=quantile(detsims, 0.7))
 curve(ecdf(betasims)(x), add=TRUE, col="red")
+#
+detsims <- apply(V, 3, det)/apply(sweep(V, 1:2, diag(p), "+"), 3, det)
+#detsims <- apply(array(apply(V, 3, function(x) x%*%solve(diag(p)+x)), dim=c(p,p,nsims)), 3, det)
+betasims <- rU(nsims, p, 2*a, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.3), to=quantile(detsims, 0.7))
+curve(ecdf(betasims)(x), add=TRUE, col="red") # ??????????
+#
+phiV1 <- Phi(VtoU(V))
+phiV2 <- Phi(VtoU(rmatrixbetaII(nsims, p, a, b)))
+plot(Re(phiV1), type="o", pch=19)
+lines(Re(phiV2), col="blue", type="o", pch=19)
+plot(Im(phiV1), type="o", pch=19)
+lines(Im(phiV2), col="blue", type="o", pch=19)
 ```
+
+```{r}
+V <- rmatrixbetaII(nsims, p, a, b)
+V11 <- V[1:p1, 1:p1, ]
+detsims <- apply(V11, 3, det)
+betasims <- rUprime(nsims, p1, 2*a, 2*b-p2) 
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.1), to=quantile(detsims, 0.9))
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+V221 <- array(NA_real_, dim=c(p2,p2,nsims))
+for(i in 1:nsims){
+  V221[,,i] <- V[(p1+1):p,(p1+1):p,i] - V[(p1+1):p,1:p1,i] %*% chol2inv(chol(V[1:p1,1:p1,i])) %*% t(V[(p1+1):p,1:p1,i])
+}
+detsims <- apply(V221, 3, det)
+betasims <- rUprime(nsims, p2, 2*a-p1, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.1), to=quantile(detsims, 0.9))
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+# 
+detsims <- apply(V11, 3, det)/apply(sweep(V11, 1:2, diag(p1), "+"), 3, det)
+betasims <- rU(nsims, p1, 2*a, 2*b-p2)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.1), to=quantile(detsims, 0.9))
+curve(ecdf(betasims)(x), add=TRUE, col="red") 
+#
+detsims <- apply(V221, 3, det)/apply(sweep(V221, 1:2, diag(p2), "+"), 3, det)
+betasims <- rU(nsims, p2, 2*a-p1, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.1), to=quantile(detsims, 0.9))
+curve(ecdf(betasims)(x), add=TRUE, col="red") 
+#
+cor(V11[1,1,], V221[1,1,] + V221[2,1,])
+cor(V11[1,1,], V221[1,1,]*V221[2,2,])
+cor(V11[1,2,], V221[2,1,]^2+V221[2,2,])
+```
+
 
 # Inverted t
 
 ```{r}
 # thm 5.2.3 Gupta & Nagar
-nsims <- 130000
+nsims <- 60000
 p <- 3; n1 <- 5; n2 <- 4
 Sigma <- toeplitz(p:1)/100
 X <- rmatrixnormal(nsims, matrix(0, p, n1), Sigma, diag(n1))
@@ -252,5 +327,94 @@ round(apply(Z, 1:2, var), 2)
 round(apply(IT, 1:2, var), 2)
 curve(ecdf(Z[1,1,]+Z[1,2,]+Z[3,3,]+Z[3,5,]^2)(x), from=-1.5, to=1.5)
 curve(ecdf(IT[1,1,]+IT[1,2,]+IT[3,3,]+IT[3,5,]^2)(x), add=TRUE, col="red")
+#
+Z2 <- IT2 <- array(NA_real_, dim=c(p,p,nsims))
+for(i in 1:nsims){
+  Z2[,,i] <- tcrossprod(Z[,,i])
+  IT2[,,i] <- tcrossprod(IT[,,i])
+}
+Phi <- function(sims, z = seq(0.01, 4, length.out = 20)){
+  sapply(z,
+         function(z) mean(apply(sims, 3,
+                                function(x) exp(-1i*sum(rep(z, p*p)*c(t(x)))))))
+}
+PhiZ2 <- Phi(Z2)
+PhiIT2 <- Phi(IT2)
+plot(Re(PhiZ2), type="o", pch=19)
+lines(Re(PhiIT2), type="o", pch=19, col="red")
+plot(Im(PhiZ2), type="o", pch=19) 
+lines(Im(PhiIT2), type="o", pch=19, col="red")
+```
+
+```{r}
+knitr::knit_exit()
+```
+
+
+```{r, betaIconditional}
+# Beta I by conditional approach
+nsims <- 60000
+p <- 6
+a <- (p-1)/2+6; b <- (p-1)/2+6
+p2 <- 5; p1 <- p-p2
+U11 <- rmatrixbeta(nsims, p1, a, b)
+U221 <- rmatrixbeta(nsims, p2, a-p1/2, b)
+U <- array(NA_real_, dim=c(p,p,nsims))
+for(i in 1:nsims){
+  U21 <-
+    matrix(rmatrixit(1, 2*b-p+1, matrix(0, p2, p1),
+                    diag(p2)-U221[,,i],
+                    U11[,,i]*(diag(p1)-U11[,,i]), checkSymmetry = FALSE)[,,1], p2, p1)
+  U22 <- U221[,,i] + U21%*%chol2inv(chol(U11[,,i]))%*%t(U21)
+  U[,,i] <- cbind(rbind(U11[,,i], U21), rbind(t(U21), U22))
+}
+
+detsims <- apply(U, 3, det)
+betasims <- rU(nsims, p, 2*a, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.3), to=quantile(detsims, 0.7))
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+#
+detsims <- apply(U, 3, det)/apply(-sweep(U, 1:2, diag(p), "-"), 3, det)
+betasims <- rUprime(nsims, p, 2*a, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.3), to=quantile(detsims, 0.7))
+curve(ecdf(betasims)(x), add=TRUE, col="red") # ??????????
+#
+phiU1 <- Phi(U, z=seq(1, 10, by=1))
+phiU2 <- Phi(rmatrixbeta(nsims, p, a, b), z=seq(1, 10, by=1))
+plot(Re(phiU1), type="o", pch=19)
+lines(Re(phiU2), col="blue", type="o", pch=19)
+plot(Im(phiU1), type="o", pch=19)
+lines(Im(phiU2), col="blue", type="o", pch=19)
+```
+
+```{r}
+U <- rmatrixbeta(nsims, p, a, b)
+U11 <- U[1:p1, 1:p1, ]
+detsims <- apply(U11, 3, det)
+betasims <- rU(nsims, p1, 2*a, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.1), to=quantile(detsims, 0.9))
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+U221 <- array(NA_real_, dim=c(p2,p2,nsims))
+for(i in 1:nsims){
+  U221[,,i] <- U[(p1+1):p,(p1+1):p,i] - U[(p1+1):p,1:p1,i] %*% chol2inv(chol(U[1:p1,1:p1,i])) %*% t(U[(p1+1):p,1:p1,i])
+}
+detsims <- apply(U221, 3, det)
+betasims <- rU(nsims, p2, 2*a-p1, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.1), to=quantile(detsims, 0.9))
+curve(ecdf(betasims)(x), add=TRUE, col="red")
+# 
+detsims <- apply(U[1:p1, 1:p1, ], 3, det)/apply(-sweep(U[1:p1, 1:p1, ], 1:2, diag(p1), "-"), 3, det)
+betasims <- rUprime(nsims, p1, 2*a, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.1), to=quantile(detsims, 0.9))
+curve(ecdf(betasims)(x), add=TRUE, col="red") 
+#
+detsims <- apply(U221, 3, det)/apply(-sweep(U221, 1:2, diag(p2), "-"), 3, det)
+betasims <- rUprime(nsims, p2, 2*a-p1, 2*b)
+curve(ecdf(detsims)(x), from=quantile(detsims, 0.1), to=quantile(detsims, 0.9))
+curve(ecdf(betasims)(x), add=TRUE, col="red") 
+#
+cor(U11[1,1,], U221[2,1,])
+cor(U11[1,1,], U221[2,2,])
+cor(U11[1,2,], U221[2,1,])
 ```
 

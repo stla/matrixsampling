@@ -9,11 +9,13 @@
 #' @param V rows covariance matrix, a positive semidefinite matrix of order equal
 #' to \code{ncol(M)}
 #' @param checkSymmetry logical, whether to check the symmetry of \code{U} and \code{V}
+#' @param keep logical, whether to return an array with class \pkg{\link[keep]{keep}}
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
 #' @export
 #' @importFrom stats rnorm
+#' @importFrom keep as.karray
 #'
 #' @examples
 #' m <- 3
@@ -26,7 +28,7 @@
 #' apply(MNsims, 1:2, mean) # approximates M
 #' vecMNsims <- t(apply(MNsims, 3, function(X) c(t(X))))
 #' round(cov(vecMNsims)) # approximates kronecker(U,V)
-rmatrixnormal <- function(n, M, U, V, checkSymmetry=TRUE){
+rmatrixnormal <- function(n, M, U, V, checkSymmetry=TRUE, keep=TRUE){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
@@ -43,6 +45,10 @@ rmatrixnormal <- function(n, M, U, V, checkSymmetry=TRUE){
   for(i in 1:n){
     out[,,i] <- M + Uroot %*% Z[,,i] %*% Vroot
   }
-  out
+  if(keep){
+    as.karray(out)
+  }else{
+    out
+  }
 }
 

@@ -4,7 +4,7 @@
 \alias{rmatrixnormal}
 \title{Matrix normal sampler}
 \usage{
-rmatrixnormal(n, M, U, V, checkSymmetry = TRUE)
+rmatrixnormal(n, M, U, V, checkSymmetry = TRUE, keep = TRUE)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
@@ -18,6 +18,8 @@ to \code{nrow(M)}}
 to \code{ncol(M)}}
 
 \item{checkSymmetry}{logical, whether to check the symmetry of \code{U} and \code{V}}
+
+\item{keep}{logical, whether to return an array with class \pkg{\link[keep]{keep}}}
 }
 \value{
 A numeric three-dimensional array;

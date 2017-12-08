@@ -10,11 +10,13 @@
 #' @param V rows covariance matrix, a positive semidefinite matrix of order equal
 #' to \code{ncol(M)}
 #' @param checkSymmetry logical, whether to check the symmetry of \code{U} and \code{V}
+#' @param keep logical, whether to return an array with class \pkg{\link[keep]{keep}}
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
 #' @export
 #' @importFrom stats rnorm
+#' @importFrom keep as.karray
 #'
 #' @note When \code{p=1} and \code{V=nu} or when \code{m=1} and \code{U=nu}, the
 #' distribution is the multivariate t-distribution.
@@ -31,7 +33,7 @@
 #' apply(Tsims, 1:2, mean) # approximates M
 #' vecTsims <- t(apply(Tsims, 3, function(X) c(t(X))))
 #' round(cov(vecTsims), 1) # approximates 1/(nu-2) * kronecker(U,V)
-rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
+rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE, keep=TRUE){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
@@ -39,7 +41,8 @@ rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
     stop("`nu` must be a positive number")
   }
   Vroot <- matrixroot(V, matrixname="V", symmetric=!checkSymmetry)
-  m <- ifelse(isScalar(U), 1L, nrow(U))
+  U <- as.matrix(U)
+  m <- nrow(U)
   p <- nrow(Vroot)
   M <- as.matrix(M)
   if(m != nrow(M) || p != ncol(M)){
@@ -51,7 +54,11 @@ rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
   for(i in 1:n){
     out[,,i] <- M + crossprod(chol(IW[,,i]), Z[,,i] %*% Vroot)
   }
-  out
+  if(keep){
+    as.karray(out)
+  }else{
+    out
+  }
 }
 
 #' Matrix inverted-t sampler
@@ -67,11 +74,13 @@ rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
 #' @param V rows covariance matrix, a positive semidefinite matrix of order equal
 #' to \code{ncol(M)}
 #' @param checkSymmetry logical, whether to check the symmetry of \code{U} and \code{V}
+#' @param keep logical, whether to return an array with class \pkg{\link[keep]{keep}}
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
 #' @export
 #' @importFrom stats rnorm
+#' @importFrom keep as.karray
 #'
 #' @examples
 #' nu <- 0
@@ -85,7 +94,7 @@ rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
 #' apply(ITsims, 1:2, mean) # approximates M
 #' vecITsims <- t(apply(ITsims, 3, function(X) c(t(X))))
 #' round(cov(vecITsims),2) # approximates 1/(nu+m+p-1) * kronecker(U,V)
-rmatrixit <- function(n, nu, M, U, V, checkSymmetry=TRUE){
+rmatrixit <- function(n, nu, M, U, V, checkSymmetry=TRUE, keep=TRUE){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
@@ -103,9 +112,20 @@ rmatrixit <- function(n, nu, M, U, V, checkSymmetry=TRUE){
   W <- rwishart_I(n, nu+m-1, m)
   out <- array(NA_real_, dim=c(m,p,n))
   Z <- array(rnorm(m*p*n), dim=c(m,p,n))
-  for(i in 1:n){
-    out[,,i] <- M + Uroot %*%
-      forwardsolve(t(chol(W[,,i] + tcrossprod(Z[,,i]))), diag(m)) %*% Z[,,i] %*% Vroot
+  if(m>1){
+    for(i in 1:n){
+      out[,,i] <- M + Uroot %*%
+        forwardsolve(t(chol(W[,,i] + tcrossprod(Z[,,i]))), diag(m)) %*% Z[,,i] %*% Vroot
+    }
+  }else{
+    for(i in 1:n){
+      out[,,i] <- M + Uroot %*%
+        forwardsolve(t(chol(W[,,i] + crossprod(Z[,,i]))), diag(m)) %*% Z[,,i] %*% Vroot
+    }
   }
-  out
+  if(keep){
+    as.karray(out)
+  }else{
+    out
+  }
 }
