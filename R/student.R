@@ -66,6 +66,7 @@ rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
 #' to \code{nrow(M)}
 #' @param V rows covariance matrix, a positive semidefinite matrix of order equal
 #' to \code{ncol(M)}
+#' @param checkSymmetry logical, whether to check the symmetry of \code{U} and \code{V}
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
@@ -84,12 +85,12 @@ rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
 #' apply(ITsims, 1:2, mean) # approximates M
 #' vecITsims <- t(apply(ITsims, 3, function(X) c(t(X))))
 #' round(cov(vecITsims),2) # approximates 1/(nu+m+p-1) * kronecker(U,V)
-rmatrixit <- function(n, nu, M, U, V){
+rmatrixit <- function(n, nu, M, U, V, checkSymmetry=TRUE){
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
   }
-  Uroot <- matrixroot(U)
-  Vroot <- matrixroot(V)
+  Uroot <- matrixroot(U, matrixname="U", symmetric=!checkSymmetry)
+  Vroot <- matrixroot(V, matrixname="V", symmetric=!checkSymmetry)
   m <- nrow(Uroot)
   p <- nrow(Vroot)
   M <- as.matrix(M)
@@ -101,10 +102,10 @@ rmatrixit <- function(n, nu, M, U, V){
   }
   W <- rwishart_I(n, nu+m-1, m)
   out <- array(NA_real_, dim=c(m,p,n))
+  Z <- array(rnorm(m*p*n), dim=c(m,p,n))
   for(i in 1:n){
-    Z <- matrix(rnorm(m*p), m, p)
     out[,,i] <- M + Uroot %*%
-      forwardsolve(t(chol(W[,,i] + Z%*%t(Z))), diag(m)) %*% Z %*% Vroot
+      forwardsolve(t(chol(W[,,i] + tcrossprod(Z[,,i]))), diag(m)) %*% Z[,,i] %*% Vroot
   }
   out
 }

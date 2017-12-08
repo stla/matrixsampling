@@ -4,7 +4,7 @@
 \alias{rmatrixit}
 \title{Matrix inverted-t sampler}
 \usage{
-rmatrixit(n, nu, M, U, V)
+rmatrixit(n, nu, M, U, V, checkSymmetry = TRUE)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
@@ -19,6 +19,8 @@ to \code{nrow(M)}}
 
 \item{V}{rows covariance matrix, a positive semidefinite matrix of order equal
 to \code{ncol(M)}}
+
+\item{checkSymmetry}{logical, whether to check the symmetry of \code{U} and \code{V}}
 }
 \value{
 A numeric three-dimensional array;
