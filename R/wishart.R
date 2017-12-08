@@ -44,7 +44,7 @@ rwishart_chol <- function(n, nu, Sigma, epsilon=0){
   }
   p <- nrow(Sigma_chol)
   if(nu <= p-1){
-    stop(sprintf("`nu+1` (%s) must be greater than the dimension (%s)", nu+1, p))
+    stop(sprintf("`nu` (%s) must be greater than `p-1` (%s)", nu, p-1))
   }
   out <- array(NA_real_, dim=c(p, p, n))
   chisims <- matrix(NA_real_, p, n)
@@ -54,10 +54,12 @@ rwishart_chol <- function(n, nu, Sigma, epsilon=0){
   if(epsilon>0){
     chisims <- pmax(chisims, epsilon)
   }
+  Y <- matrix(rnorm(p*(p-1)/2*n), p*(p-1)/2, n)
+  Z <- matrix(0, p, p)
+  lowertri <- lower.tri(Z)
   for(i in 1:n){
-    Z <- matrix(0, p, p)
     diag(Z) <- chisims[,i]
-    Z[lower.tri(Z)] <- rnorm(p*(p-1)/2)
+    Z[lowertri] <- Y[,i]
     out[,,i] <- crossprod(Sigma_chol, Z)
   }
   out
@@ -99,10 +101,12 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE,
     chisims <- pmax(chisims, epsilon)
   }
   out <- array(NA_real_, dim=c(p, p, n))
+  Y <- matrix(rnorm(p*(p-1)/2*n), p*(p-1)/2, n)
+  Z <- matrix(0, p, p)
+  lowertri <- lower.tri(Z)
   for(i in 1:n){
-    Z <- matrix(0, p, p)
     diag(Z) <- chisims[,i]
-    Z[lower.tri(Z)] <- rnorm(p*(p-1)/2)
+    Z[lowertri] <- Y[,i]
     out[,,i] <- crossprod(Sigma_root, Z)
   }
   out
@@ -119,10 +123,12 @@ rwishart_chol_I <- function(n, nu, p, epsilon=0){
     chisims <- pmax(chisims, epsilon)
   }
   out <- array(NA_real_, dim=c(p, p, n))
+  Y <- matrix(rnorm(p*(p-1)/2*n), p*(p-1)/2, n)
+  Z <- matrix(0, p, p)
+  lowertri <- lower.tri(Z)
   for(i in 1:n){
-    Z <- matrix(0, p, p)
     diag(Z) <- chisims[,i]
-    Z[lower.tri(Z)] <- rnorm(p*(p-1)/2)
+    Z[lowertri] <- Y[,i]
     out[,,i] <- Z
   }
   out
@@ -147,8 +153,8 @@ rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
   U <- sweep(matrix(rnorm(r*n),r,n), 1L, u1, "+")
   B <- t(Pi) %*% cbind(c(1,rep(0,d-1L)), rbind(0, Ctilde))
   Wsims <- array(NA_real_, dim=c(d, d, n))
+  Y <- matrix(0, d, d)
   for(i in 1:n){
-    Y <- matrix(0, d, d)
     Y[1L:(r+1L), 1L:(r+1L)] <- cbind(c(U11[i] + sum(U[,i]^2), U[,i]),
                                      rbind(U[,i], diag(r)))
     Wsims[,,i] <- B %*% Y %*% t(B)
@@ -286,22 +292,23 @@ rwishart <- function(n, nu, Sigma, Theta=NULL, epsilon=0){
       Sigma_root <- matrixroot(Sigma)
       Theta_root <- matrixroot(Theta, matrixname = "Theta")
       WrootI <- rwishart_chol_I(n, nu-p, p, epsilon)
+      Z <- array(rnorm(p*p*n), dim=c(p,p,n))
       for(i in 1:n){
-        Z <- matrix(rnorm(p*p), p, p)
-        W[,,i] <- (Theta_root + Sigma_root %*% Z) %*%
-          (Theta_root + t(Z) %*% Sigma_root) +
+        W[,,i] <- (Theta_root + Sigma_root %*% Z[,,i]) %*%
+          (Theta_root + t(Z[,,i]) %*% Sigma_root) +
           tcrossprod(Sigma_root %*% WrootI[,,i])
       }
     }else if(floor(nu) == nu && nu != p-1){ # nu is an integer >= p
       Sigma_root <- matrixroot(Sigma)
       Theta_root <- matrixroot(Theta, matrixname = "Theta")
       if(nu != p){
+        Z <- array(rnorm(p*p*n), dim=c(p,p,n))
+        Y <- array(rnorm(p*(nu-p)*n), dim=c(p,nu-p,n))
         for(i in 1:n){
-          Z <- matrix(rnorm(p*p), p, p)
-          W[,,i] <- (Theta_root + Sigma_root %*% Z) %*%
-            (Theta_root + t(Z) %*% Sigma_root) +
+          W[,,i] <- (Theta_root + Sigma_root %*% Z[,,i]) %*%
+            (Theta_root + t(Z[,,i]) %*% Sigma_root) +
             Sigma_root %*%
-            tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p)) %*% t(Sigma_root)
+            tcrossprod(Y[,,i]) %*% t(Sigma_root)
         }
       }else{ # nu=p
         for(i in 1:n){
@@ -328,10 +335,12 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
         chisims <- pmax(chisims, epsilon)
       }
       out <- array(NA_real_, dim=c(p,p,n))
+      Z <- matrix(0, p, p)
+      lowertri <- lower.tri(Z)
+      Y <- matrix(rnorm(p*(p-1)/2*n), p*(p-1)/2, n)
       for(i in 1:n){
-        Z <- matrix(0, p, p)
         diag(Z) <- chisims[,i]
-        Z[lower.tri(Z)] <- rnorm(p*(p-1)/2)
+        Z[lowertri] <- Y[,,i]
         out[,,i] <- tcrossprod(Z)
       }
     }else{
@@ -339,8 +348,9 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
         stop("`nu` must be an integer")
       }
       out <- array(NA_real_, dim=c(p,p,n))
+      Y <- array(rnorm(p*nu*n), dim=c(p,nu,n))
       for(i in 1:n){
-        out[,,i] <- tcrossprod(matrix(rnorm(nu*p), p, nu))
+        out[,,i] <- tcrossprod(Y[,,i])
       }
     }
     return(out)
@@ -362,22 +372,24 @@ rwishart_I <- function(n, nu, p, Theta=NULL, epsilon=0){
     if(nu > 2*p-1){
       Theta_root <- matrixroot(Theta, matrixname = "Theta")
       WrootI <- rwishart_chol_I(n, nu-p, p, epsilon)
+      Z <- array(rnorm(p*p*n), dim=c(p,p,n))
       for(i in 1:n){
-        Z <- matrix(rnorm(p*p), p, p)
-        W[,,i] <- (Theta_root + Z) %*% (Theta_root + t(Z)) +
+        W[,,i] <- (Theta_root + Z[,,i]) %*% (Theta_root + t(Z[,,i])) +
           tcrossprod(WrootI[,,i])
       }
     }else if(floor(nu) == nu && nu != p-1){ # nu is an integer >= p
       Theta_root <- matrixroot(Theta, matrixname = "Theta")
       if(nu != p){
+        Z <- array(rnorm(p*p*n), dim=c(p,p,n))
+        Y <- array(rnorm(p*(nu-p)*n), dim=c(p,nu-p,n))
         for(i in 1:n){
-          Z <- matrix(rnorm(p*p), p, p)
-          W[,,i] <- (Theta_root + Z) %*% (Theta_root + t(Z)) +
-            tcrossprod(matrix(rnorm((nu-p)*p), p, nu-p))
+          W[,,i] <- (Theta_root + Z[,,i]) %*% (Theta_root + t(Z[,,i])) +
+            tcrossprod(Y[,,i])
         }
       }else{ # nu=p
+        Z <- array(rnorm(p*p*n), dim=c(p,p,n))
         for(i in 1:n){
-          W[,,i] <- tcrossprod(Theta_root + matrix(rnorm(p*p), p, p))
+          W[,,i] <- tcrossprod(Theta_root + Z[,,i])
         }
       }
     }else{ # nu is not an integer or nu = p-1
@@ -452,10 +464,12 @@ rinvwishart <- function(n, nu, Omega, epsilon=0, checkSymmetry=TRUE){
     chisims <- pmax(chisims, epsilon)
   }
   out <- array(NA_real_, dim=c(p, p, n))
+  Y <- matrix(rnorm(p*(p-1)/2*n), p*(p-1)/2, n)
+  Z <- matrix(0, p, p)
+  lowertri <- lower.tri(Z)
   for(i in 1:n){
-    Z <- matrix(0, p, p)
     diag(Z) <- chisims[,i]
-    Z[lower.tri(Z)] <- rnorm(p*(p-1)/2)
+    Z[lowertri] <- Y[,i]
     out[,,i] <- chol2inv(crossprod(Z, Omegainv_chol))
   }
   out

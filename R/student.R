@@ -47,8 +47,9 @@ rmatrixt <- function(n, nu, M, U, V, checkSymmetry=TRUE){
   }
   IW <- rinvwishart(n, nu+m-1, U)
   out <- array(NA_real_, dim=c(m,p,n))
+  Z <- array(rnorm(m*p*n), dim=c(m,p,n))
   for(i in 1:n){
-    out[,,i] <- M + crossprod(chol(IW[,,i]), matrix(rnorm(m*p), m, p) %*% Vroot)
+    out[,,i] <- M + crossprod(chol(IW[,,i]), Z[,,i] %*% Vroot)
   }
   out
 }

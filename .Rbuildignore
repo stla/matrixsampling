@@ -9,3 +9,5 @@
 ^inst/BetaMatrix\.html$
 ^inst/BetaMatrix\.Rmd$
 ^TODO\.txt$
+^matrixsampling\.pdf$
+^inst/checks_wishart_chol\.R$
