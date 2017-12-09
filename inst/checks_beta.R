@@ -41,7 +41,7 @@ p <- 3
 a <- 2; b <- 2.5
 Vsims <- rmatrixbetaII(nsims, p, a, b)
 
-## check U'-distribution for BetaI
+## check U'-distribution for BetaII
 detsims <- apply(Vsims, 3, det)
 curve(ecdf(detsims)(x), to=quantile(detsims, 0.9))
 e <- 2*a; h <- 2*b
@@ -174,7 +174,8 @@ curve(ecdf(betasims)(x), add=TRUE, col="red")
 tr <- function(M) sum(diag(M))
 Phi <- function(sims, z = seq(0.01, 4, length.out = 20)){
   sapply(z,
-         function(z) mean(apply(sims, 3, function(x) exp(1i*tr((z*diag(p)+matrix(z,p,p))%*%x)))))
+         function(z) mean(apply(sims, 3,
+                                function(x) exp(1i*tr((z*diag(p)+matrix(z,p,p))%*%x)))))
 }
 VtoU <- function(Vsims){
   array(apply(Vsims, 3,
@@ -185,9 +186,9 @@ VtoU <- function(Vsims){
 #
 nsims <- 30000
 p <- 4
-a <- 2; b <- 2
-Theta1 <- 3*diag(p) #tcrossprod(1:p)
-Theta2 <- 5*diag(p) #toeplitz(p:1)
+a <- 1.5; b <- 2
+Theta1 <- diag(p) # tcrossprod(1:p)
+Theta2 <- 3*diag(p) # toeplitz(p:1)
 U1 <- rmatrixbeta(nsims, p, a, b, def=1, Theta1=Theta1, Theta2=Theta2)
 V1 <- rmatrixbetaII(nsims, p, a, b, def=1,Theta1=Theta1, Theta2=Theta2)
 U2 <- rmatrixbeta(nsims, p, a, b, def=2, Theta1=Theta1, Theta2=Theta2)

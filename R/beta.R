@@ -13,6 +13,8 @@
 #' matrix of order \code{p}; setting it to \code{NULL} (default) is
 #' equivalent to setting it to the zero matrix
 #' @param def \code{1} or \code{2}, the definition used; see Details
+#' @param checkSymmetry logical, whether to check the symmetry of \code{Theta1}
+#' and \code{Theta2}
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
@@ -56,7 +58,7 @@
 #' @examples
 #' Bsims <- rmatrixbeta(10000, 3, 1, 1)
 #' dim(Bsims) # 3 3 10000
-rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
+rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymmetry=TRUE){
   def <- match.arg(as.character(def), choices=1:2)
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
@@ -89,7 +91,7 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
     if(2*b < p-1 && floor(2*b) != b){
       stop("`b < (p-1)/2`, it must be half an integer")
     }
-    W1 <- rwishart_I(n, 2*a, p, Theta1)
+    W1 <- rwishart_I(n, 2*a, p, Theta1, checkSymmetry=checkSymmetry)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
     if(2*a < p-1 && floor(2*a) != a){
@@ -99,7 +101,7 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
       stop("`b` must be greater than `(p-1)/2`")
     }
     W1 <- rwishart_I(n, 2*a, p)
-    W2 <- rwishart_I(n, 2*b, p, Theta2)
+    W2 <- rwishart_I(n, 2*b, p, Theta2, checkSymmetry=checkSymmetry)
   }else{
     if(2*a < p-1){
       stop("`a` must be greater than `(p-1)/2`")
@@ -107,8 +109,8 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
     if(2*b < p-1){
       stop("`b` must be greater than `(p-1)/2`")
     }
-    W1 <- rwishart_I(n, 2*a, p, Theta1)
-    W2 <- rwishart_I(n, 2*b, p, Theta2)
+    W1 <- rwishart_I(n, 2*a, p, Theta1, checkSymmetry=checkSymmetry)
+    W2 <- rwishart_I(n, 2*b, p, Theta2, checkSymmetry=checkSymmetry)
   }
   out <- array(NA_real_, dim=c(p,p,n))
   if(def==1){
@@ -140,6 +142,8 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
 #' matrix of order \code{p}; setting it to \code{NULL} (default) is
 #' equivalent to setting it to the zero matrix
 #' @param def \code{1} or \code{2}, the definition used; see Details
+#' @param checkSymmetry logical, whether to check the symmetry of \code{Theta1}
+#' and \code{Theta2}
 #'
 #' @return A numeric three-dimensional array;
 #' simulations are stacked along the third dimension (see example).
@@ -178,7 +182,7 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
 #' @examples
 #' Bsims <- rmatrixbetaII(10000, 3, 1, 1.5)
 #' dim(Bsims) # 3 3 10000
-rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
+rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymmetry=TRUE){
   def <- match.arg(as.character(def), choices=1:2)
   if(!isPositiveInteger(n)){
     stop("`n` must be a positive integer")
@@ -222,7 +226,7 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
     if(2*a < p-1){
       stop("`a` must be greater than `(p-1)/2`")
     }
-    W1 <- rwishart_I(n, 2*a, p, Theta1)
+    W1 <- rwishart_I(n, 2*a, p, Theta1, checkSymmetry=checkSymmetry)
     if(def==2){
       W2root <- rwishart_chol_I(n, 2*b, p)
       out <- array(NA_real_, dim=c(p,p,n))
@@ -238,13 +242,13 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1){
       stop("`a <= (p-1)/2`, it must be half an integer")
     }
     W1 <- rwishart_I(n, 2*a, p)
-    W2 <- rwishart_I(n, 2*b, p, Theta2)
+    W2 <- rwishart_I(n, 2*b, p, Theta2, checkSymmetry=checkSymmetry)
   }else{
     if(2*a < p-1){
       stop("`a` must be greater than `(p-1)/2`")
     }
-    W1 <- rwishart_I(n, 2*a, p, Theta1)
-    W2 <- rwishart_I(n, 2*b, p, Theta2)
+    W1 <- rwishart_I(n, 2*a, p, Theta1, checkSymmetry=checkSymmetry)
+    W2 <- rwishart_I(n, 2*b, p, Theta2, checkSymmetry=checkSymmetry)
   }
   out <- array(NA_real_, dim=c(p,p,n))
   if(def==1){

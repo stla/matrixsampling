@@ -4,7 +4,8 @@
 \alias{rmatrixbetaII}
 \title{Matrix Beta II sampler}
 \usage{
-rmatrixbetaII(n, p, a, b, Theta1 = NULL, Theta2 = NULL, def = 1)
+rmatrixbetaII(n, p, a, b, Theta1 = NULL, Theta2 = NULL, def = 1,
+  checkSymmetry = TRUE)
 }
 \arguments{
 \item{n}{sample size, a positive integer}
@@ -23,6 +24,9 @@ matrix of order \code{p}; setting it to \code{NULL} (default) is
 equivalent to setting it to the zero matrix}
 
 \item{def}{\code{1} or \code{2}, the definition used; see Details}
+
+\item{checkSymmetry}{logical, whether to check the symmetry of \code{Theta1}
+and \code{Theta2}}
 }
 \value{
 A numeric three-dimensional array;

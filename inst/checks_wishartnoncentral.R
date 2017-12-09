@@ -51,3 +51,20 @@ for(i in 1:(p-1)){
 curve(ecdf(detsims)(x), to=quantile(detsims, 0.95))
 curve(ecdf(chi2sims)(x), add=TRUE, col="red")
 
+
+# splitting - ça marche !
+p <- 3
+nu <- 10
+Sigma1 <- toeplitz(p:1) #tcrossprod(c(1,0,0))
+Sigma2 <- toeplitz(p:1) # tcrossprod(c(0,1,0))
+Theta <- matrix(1, p, p)
+nsims <- 50000
+W1 <- rwishart(nsims, nu, Sigma1, Theta)
+W2 <- array(NA_real_, dim=c(p,p,nsims))
+for(i in 1:nsims){
+  W2[,,i] <- rwishart(1, nu, Sigma2, W1[,,i], checkSymmetry = FALSE)
+}
+apply(W2, 1:2, mean); nu*(Sigma1+Sigma2) + Theta
+Z <- 0.015*diag(p) + matrix(0.01,p,p)
+phi(Z, nu, Sigma1+Sigma2, Theta)
+mean(apply(W2, 3, function(x) exp(tr(1i*Z%*%x))))
