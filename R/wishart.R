@@ -112,7 +112,7 @@ rwishart_root <- function(n, nu, Sigma, Sigma_root=NULL, check=TRUE,
   out
 }
 
-rwishart_chol_I <- function(n, nu, p, epsilon=0){
+rwishart_chol_I <- function(n, nu, p, epsilon=0, upper=FALSE){
   # samples R such that RR' ~ W(nu, I_p)
   # nu > p-1 only
   chisims <- matrix(NA_real_, p, n)
@@ -125,11 +125,20 @@ rwishart_chol_I <- function(n, nu, p, epsilon=0){
   out <- array(NA_real_, dim=c(p, p, n))
   Y <- matrix(rnorm(p*(p-1)/2*n), p*(p-1)/2, n)
   Z <- matrix(0, p, p)
-  lowertri <- lower.tri(Z)
-  for(i in 1:n){
-    diag(Z) <- chisims[,i]
-    Z[lowertri] <- Y[,i]
-    out[,,i] <- Z
+  if(upper){
+    uppertri <- upper.tri(Z)
+    for(i in 1:n){
+      diag(Z) <- chisims[,i]
+      Z[uppertri] <- Y[,i]
+      out[,,i] <- Z
+    }
+  }else{
+    lowertri <- lower.tri(Z)
+    for(i in 1:n){
+      diag(Z) <- chisims[,i]
+      Z[lowertri] <- Y[,i]
+      out[,,i] <- Z
+    }
   }
   out
 }

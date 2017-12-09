@@ -76,10 +76,10 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymmet
     if(2*a+2*b <= p-1){
       stop("`a` and `b` must satisfy `a+b > (p-1)/2`")
     }
-    if(2*a < p-1 && floor(2*a) != a){
+    if(2*a < p-1 && floor(2*a) != 2*a){
       stop("`a < (p-1)/2`, it must be half an integer")
     }
-    if(2*b < p-1 && floor(2*b) != b){
+    if(2*b < p-1 && floor(2*b) != 2*b){
       stop("`b < (p-1)/2`, it must be half an integer")
     }
     W1 <- rwishart_I(n, 2*a, p)
@@ -88,13 +88,13 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymmet
     if(2*a < p-1){
       stop("`a` must be greater than `(p-1)/2`")
     }
-    if(2*b < p-1 && floor(2*b) != b){
+    if(2*b < p-1 && floor(2*b) != 2*b){
       stop("`b < (p-1)/2`, it must be half an integer")
     }
     W1 <- rwishart_I(n, 2*a, p, Theta1, checkSymmetry=checkSymmetry)
     W2 <- rwishart_I(n, 2*b, p)
   }else if(isNullOrZeroMatrix(Theta1) && !isNullOrZeroMatrix(Theta2)){
-    if(2*a < p-1 && floor(2*a) != a){
+    if(2*a < p-1 && floor(2*a) != 2*a){
       stop("`a < (p-1)/2`, it must be half an integer")
     }
     if(2*b < p-1){
@@ -205,17 +205,17 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymm
     }
     if(def==2){
       out <- array(NA_real_, dim=c(p,p,n))
-      W2root <- rwishart_chol_I(n, 2*b, p)
+      W2root <- rwishart_chol_I(n, 2*b, p, upper=TRUE)
       if(2*a > p-1){
         W1root <- rwishart_chol_I(n, 2*a, p)
         for(i in 1:n){
-          out[,,i] <- W1root[,,i] %*% chol2inv(t(W2root[,,i])) %*% t(W1root[,,i])
+          out[,,i] <- W1root[,,i] %*% chol2inv(W2root[,,i]) %*% t(W1root[,,i])
         }
       }else{
         W1 <- rwishart_I(n, 2*a, p)
         for(i in 1:n){
           W1root <- sqrtm(W1[,,i])
-          out[,,i] <- W1root %*% chol2inv(t(W2root[,,i])) %*% W1root
+          out[,,i] <- W1root %*% chol2inv(W2root[,,i]) %*% W1root
         }
       }
       return(out)
@@ -228,11 +228,11 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymm
     }
     W1 <- rwishart_I(n, 2*a, p, Theta1, checkSymmetry=checkSymmetry)
     if(def==2){
-      W2root <- rwishart_chol_I(n, 2*b, p)
+      W2root <- rwishart_chol_I(n, 2*b, p, upper=TRUE)
       out <- array(NA_real_, dim=c(p,p,n))
       for(i in 1:n){
-        W1root <- chol(W1[,,i])
-        out[,,i] <- t(W1root) %*% chol2inv(t(W2root[,,i])) %*% W1root
+        W1root <- sqrtm(W1[,,i]) # could use chol, but sqrtm better if not >0
+        out[,,i] <- W1root %*% chol2inv(W2root[,,i]) %*% W1root
       }
       return(out)
     }
