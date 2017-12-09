@@ -120,7 +120,7 @@ rmatrixbeta <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymmet
     }
   }else{
     for(i in 1:n){
-      A <- matrixroot(W1[,,i], symmetric=TRUE) # not cholesky
+      A <- sqrtm(W1[,,i]) # not cholesky
       out[,,i] <- A %*% chol2inv(chol(W1[,,i] + W2[,,i])) %*% A
     }
   }
@@ -214,7 +214,7 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymm
       }else{
         W1 <- rwishart_I(n, 2*a, p)
         for(i in 1:n){
-          W1root <- matrixroot(W1[,,i], symmetric=TRUE)
+          W1root <- sqrtm(W1[,,i])
           out[,,i] <- W1root %*% chol2inv(t(W2root[,,i])) %*% W1root
         }
       }
@@ -258,7 +258,7 @@ rmatrixbetaII <- function(n, p, a, b, Theta1=NULL, Theta2=NULL, def=1, checkSymm
     }
   }else{
     for(i in 1:n){
-      A <- matrixroot(W1[,,i], symmetric=TRUE) # not chol if Theta2 is not scalar
+      A <- sqrtm(W1[,,i]) # not chol if Theta2 is not scalar
       out[,,i] <- A %*% chol2inv(chol(W2[,,i])) %*% A
     }
   }

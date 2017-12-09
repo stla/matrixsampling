@@ -57,6 +57,11 @@ matrixroot <- function(Sigma, symmetric=FALSE, matrixname="Sigma"){
   Sigma_eig$vectors %*% (sqrt(Sigma_eig$values) * t(Sigma_eig$vectors))
 }
 
+sqrtm <- function(Sigma){ # square root for positive symmetric Sigma
+  Sigma_eig <- eigen(Sigma, symmetric = TRUE)
+  Sigma_eig$vectors %*% (sqrt(Sigma_eig$values) * t(Sigma_eig$vectors))
+}
+
 invsqrtm <- function(Sigma){ # inverse square root for positive symmetric Sigma
   Sigma_eig <- eigen(Sigma, symmetric = TRUE)
   Sigma_eig$vectors %*% (1/sqrt(Sigma_eig$values) * t(Sigma_eig$vectors))
