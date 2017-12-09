@@ -16,3 +16,5 @@
 ^inst/AA\.Rmd$
 ^inst/AA\.html$
 ^inst/AA\.pdf$
+^inst/Checks_cache
+^inst/Checks_files
