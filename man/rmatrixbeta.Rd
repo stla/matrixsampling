@@ -72,6 +72,17 @@ and \eqn{rank(U)=2a}.
 For an half integer \eqn{b \le (p-1)/2}, it satisfies \eqn{0 < U \le I}
 and \eqn{rank(I-U)=2b}.
 }
+\section{Warning}{
+
+Definition 2 requires the calculation of the square root of
+\ifelse{html}{\out{S<sub>1</sub> ~ W<sub>p</sub>(2a,I<sub>p</sub>,&Theta;<sub>1</sub>)}}{\eqn{S_1 \sim \mathcal{W}_p(2a,I_p,\Theta_1)}}
+(see Details). While \ifelse{html}{\out{S<sub>1</sub>}}{\eqn{S_1}} is always
+positive semidefinite in theory, it could happen that the simulation of
+\ifelse{html}{\out{S<sub>1</sub>}}{\eqn{S_1}} is not positive semidefinite,
+especially when \code{a} is small. In this case the calculation of the square root
+will return \code{NaN}.
+}
+
 \examples{
 Bsims <- rmatrixbeta(10000, 3, 1, 1)
 dim(Bsims) # 3 3 10000

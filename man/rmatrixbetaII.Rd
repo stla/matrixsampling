@@ -67,6 +67,12 @@ generated from this distribution satisfies \eqn{V > 0}.
 For an half integer \eqn{a \le (p-1)/2}, it satisfies \eqn{V \ge 0} and
 \eqn{rank(V)=2a}.
 }
+\section{Warning}{
+
+The issue described in the \strong{Warning} section of \code{\link{rmatrixbeta}}
+also concerns \code{rmatrixbetaII}.
+}
+
 \examples{
 Bsims <- rmatrixbetaII(10000, 3, 1, 1.5)
 dim(Bsims) # 3 3 10000
