@@ -233,10 +233,10 @@ rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
 #' @details The argument \code{epsilon} is a threshold whose role is to guarantee
 #' that the algorithm samples invertible matrices when \code{nu > p-1} and
 #' \code{Sigma} is positive definite.
-#' They are theoretically invertible under this condition, but due to
-#' numerical precision, they are not always invertible when
-#' \code{nu} is close to \code{p-1}, i.e. when \code{nu-p+1} is small. In this case,
-#' the chi-squared distributions involved in the algorithm can
+#' The sampled matrices are theoretically invertible under these conditions,
+#' but due to numerical issues, they are not always invertible when
+#' \code{nu} is close to \code{p-1}, i.e. when \code{nu-p+1} is small.
+#' In this case, the chi-squared distributions involved in the algorithm can
 #' generate zero values or values close to zero, yielding the non-invertibility
 #' of the sampled matrices. These values are replaced with \code{epsilon} if they are
 #' smaller than \code{epsilon}.
