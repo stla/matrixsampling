@@ -58,6 +58,23 @@ plot(Im(phiW(nu, Sigma)), type="o", pch=19)
 lines(Im(phisims), type="o", col="red", pch=19)
 ```
 
+```{r}
+# check singular case
+Sigma <- cbind(c(3,2,0),c(2,2,0), c(0,0,0))
+r <- 2 # rank Sigma
+SigmaPlus <- MASS::ginv(Sigma)
+nu <- 2
+sims <- rwishart(nsims, nu, Sigma)
+sims2 <- numeric(nsims)
+for(i in 1:nsims){
+  y <- rnorm(3)
+  sims2[i] <- (t(y) %*% SigmaPlus %*% y) / 
+    (t(y) %*% MASS::ginv(sims[,,i]) %*% y)
+}
+curve(ecdf(sims2)(x), to=10)
+curve(pchisq(x, nu-r+1), add=TRUE, col="red")
+```
+
 
 # Wishart noncentral
 
