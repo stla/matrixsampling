@@ -33,7 +33,7 @@ A numeric three-dimensional array;
 simulations are stacked along the third dimension (see example).
 }
 \description{
-Samples a matrix Beta distribution.
+Samples a matrix Beta (type I) distribution.
 }
 \details{
 A Beta random matrix \eqn{U} is defined as follows.

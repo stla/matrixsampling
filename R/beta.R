@@ -1,6 +1,6 @@
 #' Matrix Beta sampler
 #'
-#' Samples a matrix Beta distribution.
+#' Samples a matrix Beta (type I) distribution.
 #'
 #' @param n sample size, a positive integer
 #' @param p dimension, a positive integer

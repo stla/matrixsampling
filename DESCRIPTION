@@ -1,11 +1,11 @@
 Package: matrixsampling
 Type: Package
 Title: Simulations of Matrix Variate Distributions
-Version: 0.1.0.9000
-Date: 2017-12-04
+Version: 1.0.0
+Date: 2017-12-10
 Author: Stéphane Laurent
 Maintainer: Stéphane Laurent <laurent_step@yahoo.fr>
-Description: Provides samplers for various matrix variate distributions: Wishart, inverse-Wishart, normal, t, inverted-t, Beta type I and Beta type II.
+Description: Provides samplers for various matrix variate distributions: Wishart, inverse-Wishart, normal, t, inverted-t, Beta type I and Beta type II. Allows to simulate the noncentral Wishart distribution without the integer restriction on the degrees of freedom.
 License: GPL-3
 URL: https://github.com/stla/matrixsampling
 BugReports: https://github.com/stla/matrixsampling/issues
