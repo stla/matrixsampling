@@ -153,14 +153,14 @@ rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
     rchisq
   }
   ec <- extendedCholesky(Theta[-1L,-1L])
-  L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
+  L <- ec$L; Ctilde <- ec$Ctilde; P <- invP <- ec$P
+  invP[P] <- 1L:(d-1L)
   r <- nrow(L)
-  Pi <- cbind(c(1,rep(0,d-1L)), rbind(0,P))
-  xtilde <- c(crossprod(Pi%*%Theta, Pi[1,]))
+  xtilde <- Theta[c(1L,P+1L),1L]
   u1 <- c(forwardsolve(L, diag(r)) %*% xtilde[2L:(r+1L)])
   U11 <- rChi2(n, df=nu-r, ncp=max(0, xtilde[1L]-sum(u1^2)))
   U <- sweep(matrix(rnorm(r*n),r,n), 1L, u1, "+")
-  B <- t(Pi) %*% cbind(c(1,rep(0,d-1L)), rbind(0, Ctilde))
+  B <- cbind(c(1,rep(0,d-1L)), rbind(0, Ctilde[invP,]))
   Wsims <- array(NA_real_, dim=c(d, d, n))
   Y <- matrix(0, d, d)
   for(i in 1:n){
@@ -173,14 +173,14 @@ rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
     Wsims <- Wsims[p,p,,drop=FALSE] # don't drop if n=1
     for(i in 1L:n){
       ec <- extendedCholesky(Wsims[-1L,-1L,i])
-      L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
+      L <- ec$L; Ctilde <- ec$Ctilde; P <- invP <- ec$P
+      invP[P] <- 1L:(d-1L)
       r <- nrow(L)
-      Pi <- cbind(c(1,rep(0,d-1L)), rbind(0,P))
-      xtilde <- c(crossprod(Pi%*%Wsims[,,i], Pi[1,]))
+      xtilde <- Wsims[c(1L,P+1L),1L,i]
       u1 <- c(forwardsolve(L, diag(r)) %*% xtilde[2L:(r+1L)])
       U11 <- rChi2(1L, df=nu-r, ncp=max(0, xtilde[1L]-sum(u1^2)))
       U <- rnorm(r, u1)
-      B <- t(Pi) %*% cbind(c(1,rep(0,d-1L)), rbind(0, Ctilde))
+      B <- cbind(c(1,rep(0,d-1L)), rbind(0, Ctilde[invP,]))
       Y <- matrix(0, d, d)
       Y[1L:(r+1L), 1L:(r+1L)] <- cbind(c(U11 + sum(U^2), U), rbind(U, diag(r)))
       Wsims[,,i] <- (B %*% Y %*% t(B))[p,p]
@@ -192,8 +192,11 @@ rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
 rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
   ec <- extendedCholesky(Sigma)
   L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
-  theta <- t(P) %*% Ctilde
-  thetainv <- forwardsolve(Ctilde, diag(nrow(P))) %*% P
+#  theta <- t(P) %*% Ctilde
+  d <- nrow(Sigma)
+  P[P] <- 1L:d
+  theta <- Ctilde[P,]
+  thetainv <- forwardsolve(Ctilde, diag(d))[,P] # %*% P
   Y <- rwishart_AA_Im(n, nu, nrow(L), thetainv%*%Theta%*%t(thetainv), epsilon)
   array(apply(Y, 3L, function(x) theta%*%x%*%t(theta)), dim=dim(Y))
 }

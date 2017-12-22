@@ -81,11 +81,9 @@ isNullOrZeroMatrix <- function(M){
 extendedCholesky <- function(S){ # does not check S >= 0
   C <- suppressWarnings(chol(S, pivot=TRUE))
   d <- nrow(C)
-  P <- matrix(0, d, d)
-  P[cbind(1L:d, attr(C,"pivot"))] <- 1
   r <- attr(C, "rank")
   return(list(L = t(C[seq_len(r), seq_len(r), drop=FALSE]),
               Ctilde = cbind(t(C[seq_len(r), , drop=FALSE]),
                              rbind(matrix(0, r, d-r), diag(d-r))),
-              P = P))
+              P = attr(C,"pivot")))
 }
