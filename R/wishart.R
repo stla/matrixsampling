@@ -192,11 +192,10 @@ rwishart_AA_Im <- function(n, nu, m, Theta, epsilon=0){
 rwishart_AA <- function(n, nu, Sigma, Theta, epsilon=0){
   ec <- extendedCholesky(Sigma)
   L <- ec$L; Ctilde <- ec$Ctilde; P <- ec$P
-#  theta <- t(P) %*% Ctilde
   d <- nrow(Sigma)
   P[P] <- 1L:d
   theta <- Ctilde[P,]
-  thetainv <- forwardsolve(Ctilde, diag(d))[,P] # %*% P
+  thetainv <- forwardsolve(Ctilde, diag(d))[,P]
   Y <- rwishart_AA_Im(n, nu, nrow(L), thetainv%*%Theta%*%t(thetainv), epsilon)
   array(apply(Y, 3L, function(x) theta%*%x%*%t(theta)), dim=dim(Y))
 }
