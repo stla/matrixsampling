@@ -2,7 +2,7 @@
 
 ## Release summary
 
-There is just a minor difference as compared to the previous version.
+This is just a minor difference as compared to the previous version.
 
 ## Test environments
 
@@ -11,8 +11,8 @@ There is just a minor difference as compared to the previous version.
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
-
+* windows: 0 errors | 0 warnings | 0 notes
+* online win-builder : Status OK
 
 
 # Release version 1.0.0 (2017-12-10)
