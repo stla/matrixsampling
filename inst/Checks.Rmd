@@ -25,6 +25,7 @@ phiW <- function(nu, Sigma, z = seq(0.01, 4, length.out = 20)){
 ```{r}
 tr <- function(x) sum(diag(x))
 Phi <- function(sims, z = seq(0.01, 4, length.out = 20)){
+  p <- nrow(sims[,,1])
   sapply(z,
          function(z) mean(apply(sims, 3,
                                 function(x) exp(1i*tr((z*diag(p)+matrix(z,p,p))%*%x)))))
@@ -75,6 +76,24 @@ curve(ecdf(sims2)(x), to=10)
 curve(pchisq(x, nu-r+1), add=TRUE, col="red")
 ```
 
+```{r}
+# check tcrossprod(matrix normal)
+Sigma <- toeplitz(2:1)
+nsims <- 50000
+sims_normal <- rmatrixnormal(nsims, M = matrix(0, 2, 3), U = Sigma, V = diag(3))
+sims_wishart <- rwishart(nsims, nu = 3, Sigma = Sigma)
+sims <- array(NA_real_, dim = c(2,2,nsims))
+for(i in 1:nsims){
+  sims[,,i] <- tcrossprod(sims_normal[,,i])
+}
+phisims <- Phi(sims)
+nu <- 3
+layout(t(1:2))
+plot(Re(phiW(nu, Sigma)), type="o", pch=19)
+lines(Re(phisims), type="o", col="red", pch=19)
+plot(Im(phiW(nu, Sigma)), type="o", pch=19)
+lines(Im(phisims), type="o", col="red", pch=19)
+```
 
 # Wishart noncentral
 

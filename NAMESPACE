@@ -3,6 +3,7 @@
 export(rinvwishart)
 export(rmatrixbeta)
 export(rmatrixbetaII)
+export(rmatrixgamma)
 export(rmatrixit)
 export(rmatrixnormal)
 export(rmatrixt)

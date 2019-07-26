@@ -4,7 +4,8 @@
 \alias{rwishart}
 \title{Wishart sampler}
 \usage{
-rwishart(n, nu, Sigma, Theta = NULL, epsilon = 0, checkSymmetry = TRUE)
+rwishart(n, nu, Sigma, Theta = NULL, epsilon = 0,
+  checkSymmetry = TRUE)
 }
 \arguments{
 \item{n}{sample size, a positive integer}

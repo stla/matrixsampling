@@ -19,6 +19,12 @@ isSquareRealMatrix <- function(M){
 }
 
 isSymmetricPositive <- function(Sigma, matrixname="Sigma", symmetric=FALSE){
+  if(!isSquareRealMatrix(Sigma)){
+    stop(
+      sprintf(
+        "`%s` must be a symmetric positive matrix - it is not a real square matrix",
+        matrixname), call. = FALSE)
+  }
   if(!symmetric && !isSymmetricMatrix(Sigma)){
     stop(sprintf("`%s` must be a symmetric positive matrix - it is not symmetric",
                  matrixname), call. = FALSE)

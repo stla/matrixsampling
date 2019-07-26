@@ -1,0 +1,155 @@
+---
+title: "Matrix variate Beta distributions"
+author: "Stéphane Laurent"
+date: "6 décembre 2017"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+$\newcommand{\etr}{\textrm{etr}}$
+
+Two definitions of the matrix variate Beta type I distribution were proposed. 
+We will denote them by $\mathcal{B}I_p^{(1)}(a,b,\Theta_1,\Theta_2)$ and 
+$\mathcal{B}I_p^{(2)}(a,b,\Theta_1,\Theta_2)$, where $\Theta_1$ and $\Theta_2$ are the 
+noncentrality parameters. 
+Take two independent Wishart random matrices $W_1 \sim \mathcal{W}_p(2a, I_p, \Theta_1)$ 
+and $W_2 \sim \mathcal{W}_p(2a, I_p, \Theta_2)$.
+Then $\mathcal{B}I_p^{(1)}(a,b,\Theta_1,\Theta_2)$ is the distribution of 
+$$
+U_1 = {(W_1+W_2)}^{-\frac12}W_1{(W_1+W_2)}^{-\frac12},
+$$
+while $\mathcal{B}I_p^{(2)}(a,b,\Theta_1,\Theta_2)$ is the distribution of 
+$$
+U_2 = W_1^\frac12{(W_1+W_2)}^{-1}W_1^\frac12.
+$$
+In the central case, i.e. when both $\Theta_1$ and $\Theta_2$ are the null matrices, 
+these two distributions are the same.
+
+Similarly, two definitions of the matrix variate Beta type II distribution were proposed. 
+We will denote them by $\mathcal{B}II_p^{(1)}(a,b,\Theta_1,\Theta_2)$ and 
+$\mathcal{B}II_p^{(2)}(a,b,\Theta_1,\Theta_2)$. 
+The first one is the distribution of 
+$$
+V_1 = W_2^{-\frac12} W_1 W_2^{-\frac12},
+$$
+while the second one is the distribution of 
+$$
+V_2 = W_1^\frac12 {W_2}^{-1} W_1^\frac12.
+$$
+Similarly to the type I, these two distributions are the same in the central case. 
+
+
+Under the second definition, the Beta type I distribution is related to the Beta type II distribution by $U_2 \sim V_2{(I_p+V_2)}^{-1}$.
+
+
+## $\mathcal{B}I_p^{(1)}(a, b, \Theta_1, \Theta_2)$
+
+$$
+U = {(W_1+W_2)}^{-\frac12} W_1 {(W_1+W_2)}^{-\frac12}.
+$$
+
+$$
+I_p - U \sim \mathcal{B}I_p^{(1)}(b, a, \Theta_2, \Theta_1).
+$$
+
+$$
+\begin{aligned}
+\mathcal{B}I_p^{(1)}(U \mid a, b, \Theta_1, \Theta_2) \propto \, & 
+{\det(U)}^{a-\frac12(p+1)} {\det(I_p-U)}^{b-\frac12(p+1)} \\
+& \int_{S>0} \etr\left(-S\right)
+{\det(S)}^{a+b-\frac12(p+1)}
+{}_0\!F_1\left(a, \frac{1}{2}\Theta_1S^{\frac12} U S^\frac12\right)
+{}_0\!F_1\left(b, \frac{1}{2}\Theta_2S^{\frac12}(I_p-U)S^\frac12\right)
+\mathrm{d}S.
+\end{aligned}
+$$
+
+- If $\Theta_1$ and $\Theta_2$ are scalar:
+$$
+\begin{aligned}
+\mathcal{B}I_p^{(1)}(U \mid a, b, \theta_1 I_p, \theta_2 I_p) \propto\, & 
+{\det(U)}^{a-\frac12(p+1)} {\det(I_p-U)}^{b-\frac12(p+1)} \\
+& \int_{S>0} \etr\left(-S\right)
+{\det(S)}^{a+b-\frac12(p+1)}
+{}_0\!F_1\left(a, \frac{\theta_1}{2}SU\right)
+{}_0\!F_1\left(b, \frac{\theta_2}{2}S(I_p-U)\right)
+\mathrm{d}S.
+\end{aligned}
+$$
+
+
+## $\mathcal{B}I_p^{(2)}(a, b, \Theta_1, \Theta_2)$
+
+$$
+U = W_1^\frac12{(W_1+W_2)}^{-1}W_1^\frac12.
+$$
+
+$$
+\begin{aligned}
+\mathcal{B}I_p^{(2)}(U \mid a, b, \Theta_1, \Theta2) \propto \, & 
+ {\det(U)}^{-b-\frac12(p+1)}
+{\det(I_p-U)}^{b-\frac12(p+1)} \\
+& \int_{S>0}
+\etr\left(-S U^{-1}\right)
+{\det(S)}^{a+b-\frac12(p+1)} 
+{}_0\!F_1\left(a, \frac{1}{2}\Theta_1S\right)
+{}_0\!F_1\left(b, \frac{1}{2}\Theta_2 S^\frac12 U^{-1}(I_p-U)S^{\frac12}\right)\mathrm{d}S.
+\end{aligned}
+$$
+
+If $\Theta_1$ and $\Theta_2$ are scalar, it is equal to 
+$\mathcal{B}I_p^{(1)}(a, b, \Theta_1, \Theta2)$.
+
+## $\mathcal{B}II_p^{(1)}(a,b,\Theta_1,\Theta_2)$
+
+$$
+V = {(W_2^{-\frac12})}' W_1 W_2^{-\frac12}
+$$
+
+$$
+\begin{aligned}
+\mathcal{B}II_p^{(1)}(V \mid a, b, \Theta_1, \Theta2) \propto \, & 
+ {\det(V)}^{a-\frac12(p+1)} \\
+&
+\int_{S>0}
+\etr\left((I_p+V)S\right)
+{\det(S)}^{a+b-\frac12(p+1)} 
+{}_0\!F_1\left(a, \frac{1}{2}\Theta_1{S^{\frac12}}' V S^{\frac12}\right)
+{}_0\!F_1\left(b, \frac{1}{2}\Theta_2S\right) \mathrm{d}S.
+\end{aligned}
+$$
+
+If $\Theta_1$ is scalar, the distribution does not depend on the choice of $W_1^\frac12$. 
+
+If $\Theta_1$ and $\Theta_2$ are scalar, 
+$V{(I_p+V)}^{-1} \sim \mathcal{B}I_p^{(1)}(a,b,\Theta_1,\Theta_2)$.
+
+
+## $\mathcal{B}II_p^{(2)}(a,b,\Theta_1,\Theta_2)$
+
+$$
+V = W_1^{\frac12} W_2^{-1} {(W_1^{-\frac12})}'.
+$$
+
+$$
+V^{-1} \sim \mathcal{B}II_p^{(1)}(b,a,\Theta_2,\Theta_1).
+$$
+
+$$
+\begin{aligned}
+\mathcal{B}II_p^{(2)}(V \mid a, b, \Theta_1, \Theta2) \propto \, & 
+ {\det(V)}^{-b-\frac12(p+1)} \\ 
+& \int_{S >0}
+\etr\left(-S(I_p+V^{-1})\right)
+{\det(S)}^{a+b-\frac12(p+1)}  
+{}_0\!F_1\left(a, \frac{1}{2}\Theta_1S\right)
+{}_0\!F_1\left(b, \frac{1}{2}\Theta_2{(S^\frac12)}' V^{-1} S^\frac12\right)
+\mathrm{d}S.
+\end{aligned}
+$$
+
+If $\Theta_2$ is scalar, the distribution does not depend on the choice of $W_1^\frac12$. 
+
+If we take $W_1^{\frac12}$ the symmetric square root of $W_1$, then
+$V{(I_p+V)}^{-1} \sim \mathcal{B}I_2(a,b,\Theta_1,\Theta_2)$.

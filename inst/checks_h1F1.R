@@ -1,3 +1,4 @@
+tr <- function(x) sum(diag(x))
 mgamma <- function(p, a){ # multivariate Gamma
   exp(log(pi) * (p * (p - 1)/4) + sum(lgamma(a + (1-(1:p))/2)))
 }
