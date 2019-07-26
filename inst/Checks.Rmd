@@ -518,3 +518,27 @@ cor(U11[1,1,], U221[2,2,])
 cor(U11[1,2,], U221[2,1,])
 ```
 
+# Confluent kind one 
+
+```{r, fig.width=8}
+nsims <- 50000
+nu1 <- 5; nu2 <- 8; theta <- 4; p <- 2
+X1 <- rmatrixgamma(nsims, nu1, theta, p = p)
+X2 <- rmatrixgamma(nsims, nu2, theta, p = p)
+sims <- array(NA_real_, dim = c(p,p,nsims))
+for(i in 1:nsims){
+  sims[,,i] <- (X1[,,i]+X2[,,i]) %*% chol2inv(chol(X1[,,i])) %*% (X1[,,i]+X2[,,i])
+}
+phisims <- Phi(sims, z=seq(1, 10, by=1)*500000)
+CHsims <- rmatrixCHkind1(nsims, nu1+nu2, 2*nu1+nu2, 2*nu1+2*nu2, theta=theta, p=p)
+phiCH <- 
+  Phi(CHsims, 
+             z=seq(1, 10, by=1)*500000)
+layout(t(1:2))
+plot(Re(phisims), type="o", pch=19)
+lines(Re(phiCH), col="blue", type="o", pch=19)
+plot(Im(phisims), type="o", pch=19)
+lines(Im(phiCH), col="blue", type="o", pch=19)
+mean(apply(sims, 3, det))
+mean(apply(CHsims, 3, det))
+```
