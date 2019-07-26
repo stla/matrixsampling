@@ -3,7 +3,9 @@
 #' Samples a matrix Gamma distribution.
 #'
 #' @param n sample size, a positive integer
-#' @param nu shape parameter, a positive number
+#' @param nu shape parameter, a positive number; if \code{nu < (p-1)/2},
+#' where \code{p} is the dimension (the order of \code{Sigma}), then \code{nu}
+#' must be a half integer
 #' @param theta scale parameter, a positive number
 #' @param Sigma scale matrix, a symmetric positive definite matrix, or
 #' \code{NULL} for the identity matrix of order \code{p}
