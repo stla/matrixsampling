@@ -6,10 +6,9 @@
 #'
 #' @param n sample size, a positive integer
 #' @param nu shape parameter, a positive number; if \code{nu < (p-1)/2},
-#' where \code{p} is the dimension (the order of \code{Sigma}), then \code{nu}
-#' must be a half integer
+#' then \code{nu} must be a half integer
 #' @param alpha,beta shape parameters; \code{alpha > nu + (p-1)/2},
-#' \code{beta < nu +1}
+#' \code{beta < nu + 1}
 #' @param theta scale parameter, a positive number
 #' @param p dimension (order of the sampled matrices), an integer greater than
 #' or equal to one
@@ -18,8 +17,17 @@
 #' simulations are stacked along the third dimension.
 #' @export
 #'
+#' @references A. K. Gupta & D. K. Nagar. \emph{Matrix Variate Distributions}.
+#' Chapman & Hall/CRC, Boca Raton (2000).
+#'
 #' @examples
-rmatrixCHIkind2 <- function(n, nu, alpha, beta, theta = 1, p = 2){
+#' nu <- 5; alpha <- 13; beta <- 4; theta <- 2; p <- 2
+#' sims <- rmatrixCHIkind2(50000, nu, alpha, beta, theta, p = 2)
+#' # simulations of the trace
+#' trsims <- apply(sims, 3, function(X) sum(diag(X)))
+#' mean(trsims)
+#' p * theta * nu * (nu+(p+1)/2-beta) / (alpha-nu-(p+1)/2)
+rmatrixCHIkind2 <- function(n, nu, alpha, beta, theta = 1, p){
   stopifnot(nu > 0, alpha > nu+(p-1)/2, beta < nu+1)
   Beta <- rmatrixbetaII(n, p, nu+(p+1)/2-beta, alpha-nu, def = 1)
   W <- rwishart_I(n, 2*nu, p)
