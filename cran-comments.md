@@ -20,6 +20,10 @@ running examples for arch 'i386' ... [42s] NOTE
 
 running examples for arch 'x64' ... [49s] NOTE
 
+## Reverse dependencies 
+
+There is only a reverse Suggests. The update causes no problem.
+
 
 # Release version 1.1.0 (2018-02-21)
 
