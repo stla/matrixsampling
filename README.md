@@ -2,7 +2,7 @@
 
 **Simulation of matrix variate distributions**
 
-This package allows to simulate some matrix variate distributions: the matrix normal distribution, the matrix t-distribution, the matrix inverted t-distribution, the Wishart distribution, the Beta type I distribution and the Beta type II distribution. A particular feature is the possibility to simulate the noncentral Wishart distribution with any fractional number of degrees of freedom.
+This package allows to simulate some matrix variate distributions: the matrix normal distribution, the matrix t-distribution, the matrix inverted t-distribution, the Wishart distribution, the Beta type I distribution, the Beta type II distribution, and more. A particular feature is the possibility to simulate the noncentral Wishart distribution with any fractional number of degrees of freedom.
 
 
 ### Install ###
