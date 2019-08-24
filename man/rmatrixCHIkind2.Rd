@@ -30,12 +30,13 @@ Samples the matrix variate type I confluent hypergeometric kind two
 distribution.
 }
 \examples{
+\donttest{
 nu <- 5; alpha <- 13; beta <- 4; theta <- 2; p <- 2
 sims <- rmatrixCHIkind2(50000, nu, alpha, beta, theta, p)
 # simulations of the trace
 trsims <- apply(sims, 3, function(X) sum(diag(X)))
 mean(trsims)
-p * theta * nu * (nu+(p+1)/2-beta) / (alpha-nu-(p+1)/2)
+p * theta * nu * (nu+(p+1)/2-beta) / (alpha-nu-(p+1)/2)}
 }
 \references{
 A. K. Gupta & D. K. Nagar. \emph{Matrix Variate Distributions}.

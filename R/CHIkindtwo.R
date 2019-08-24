@@ -20,13 +20,13 @@
 #' @references A. K. Gupta & D. K. Nagar. \emph{Matrix Variate Distributions}.
 #' Chapman & Hall/CRC, Boca Raton (2000).
 #'
-#' @examples
+#' @examples \donttest{
 #' nu <- 5; alpha <- 13; beta <- 4; theta <- 2; p <- 2
 #' sims <- rmatrixCHIkind2(50000, nu, alpha, beta, theta, p)
 #' # simulations of the trace
 #' trsims <- apply(sims, 3, function(X) sum(diag(X)))
 #' mean(trsims)
-#' p * theta * nu * (nu+(p+1)/2-beta) / (alpha-nu-(p+1)/2)
+#' p * theta * nu * (nu+(p+1)/2-beta) / (alpha-nu-(p+1)/2)}
 rmatrixCHIkind2 <- function(n, nu, alpha, beta, theta = 1, p){
   stopifnot(nu > 0, alpha > nu+(p-1)/2, beta < nu+1)
   Beta <- rmatrixbetaII(n, p, nu+(p+1)/2-beta, alpha-nu, def = 1)

@@ -18,3 +18,4 @@
 ^inst/AA\.pdf$
 ^inst/Checks_cache
 ^inst/Checks_files
+^CRAN-RELEASE$
