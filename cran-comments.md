@@ -12,13 +12,10 @@ Added new distributions.
 ## R CMD check results
 
 * windows: 0 errors | 0 warnings | 0 notes
-* online win-builder : Status 3 notes
+* online win-builder : Status 1 note
 
 New maintainer
 
-running examples for arch 'i386' ... [42s] NOTE
-
-running examples for arch 'x64' ... [49s] NOTE
 
 ## Reverse dependencies 
 
